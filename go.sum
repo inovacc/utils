@@ -1,0 +1,12 @@
+github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=
+github.com/google/uuid v1.6.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
+github.com/inovacc/base58 v0.0.0-20250330125606-88a27f13c68b h1:yQl8UFDxJ9HSAkTuDCXmG8qDxkvxXknJ/uqzsdpqWqU=
+github.com/inovacc/base58 v0.0.0-20250330125606-88a27f13c68b/go.mod h1:gzyY3SP/QWa4mCFhljaiICBEXtDYecOJyCuGMKoLdTI=
+github.com/inovacc/base62 v0.0.0-20250330125034-a0e068163d2b h1:JdubglSpphcK7iDtMD2F8bRnrSW8NyNQdbqfMbK2xPQ=
+github.com/inovacc/base62 v0.0.0-20250330125034-a0e068163d2b/go.mod h1:K/k3LniQo68I7Zf34ytBjRvVaTDJRYanoaL1JD6lQyo=
+github.com/inovacc/ksuid v1.0.0 h1:zTe8CO86pVsgogAM2D/1x+DV3uS0ZcMhKDkqtKOOvS4=
+github.com/inovacc/ksuid v1.0.0/go.mod h1:t2zVMADGYfPQ+kYgqb3AocpTq8XyMdgrOQ+IHye9RAs=
+github.com/klauspost/compress v1.18.0 h1:c/Cqfb0r+Yi+JtIEq73FWXVkRonBlf0CRNYc8Zttxdo=
+github.com/klauspost/compress v1.18.0/go.mod h1:2Pp+KzxcywXVXMr50+X0Q/Lsb43OQHYWRCY2AiWywWQ=
+golang.org/x/crypto v0.36.0 h1:AnAEvhDddvBdpY+uR+MyHmuZzzNqXSe/GvuDeob5L34=
+golang.org/x/crypto v0.36.0/go.mod h1:Y4J0ReaxCR1IMaabaSMugxJES1EpwhBHhv2bDHklZvc=
