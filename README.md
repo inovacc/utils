@@ -50,7 +50,7 @@ This package provides functions for hashing data using the SHA-256 algorithm.
 ## To install
 
 ```sh
-go get -u github.com/inovacc/utils
+go get -u github.com/inovacc/utils/v2
 ```
 
 ## Usage
@@ -62,7 +62,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/inovacc/utils/crypto/rand"
+	"github.com/inovacc/utils/v2/crypto/rand"
 )
 
 func main() {
