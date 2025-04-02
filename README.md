@@ -137,28 +137,17 @@ This package provides functions for generating random passwords with various opt
 * (p *Password) Generate() (string, error): Generates a password based on the specified options.
 
 ```go
-package main
-
-import (
-  "fmt"
-  "github.com/inovacc/utils/v2/rand/password"
+newPassword := password.NewPassword(
+  password.WithLength(16),
+  password.WithNumbers(true),
+  password.WithSpecial(true),
+  password.WithLower(true),
+  password.WithUpper(true),
 )
 
-func main() {
-  newPassword := password.NewPassword(
-    password.WithLength(16),
-    password.WithNumbers(true),
-    password.WithSpecial(true),
-    password.WithLower(true),
-    password.WithUpper(true),
-  )
-
-  generated, err := newPassword.Generate()
-  if err != nil {
-    panic(err)
-  }
-
-  fmt.Println(generated)
+generated, err := newPassword.Generate()
+if err != nil {
+  ...
 }
 ```
 
@@ -173,17 +162,7 @@ go get -u github.com/inovacc/utils/v2
 Import the necessary packages in your Go code and use the provided functions as needed. For example:
 
 ```go
-package main
-
-import (
-	"fmt"
-	"github.com/inovacc/utils/v2/crypto/rand"
-)
-
-func main() {
-	randomString := rand.RandomString(10)
-	fmt.Println("Random String:", randomString)
-}
+randomString := rand.RandomString(10)
 ```
 
 ## License
