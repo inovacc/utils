@@ -39,5 +39,5 @@ func ReadFromFile(filename string) ([]byte, error) {
 	if err := file.Close(); err != nil {
 		return nil, err
 	}
-	return nil, nil
+	return buf.Bytes(), nil
 }
