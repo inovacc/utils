@@ -10,7 +10,7 @@ func EncodeGob(data any) ([]byte, error) {
 	if err := gob.NewEncoder(&buf).Encode(data); err != nil {
 		return nil, err
 	}
-	return nil, nil
+	return buf.Bytes(), nil
 }
 
 func DecodeGob(data []byte, v any) error {

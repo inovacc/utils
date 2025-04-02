@@ -116,8 +116,7 @@ This package provides functions for reading from and writing to files.
 filename := "myfile.txt"
 data := []byte("Hello, World!")
 
-err := file.WriteToFile(filename, data)
-if err != nil {
+if err = file.WriteToFile(filename, data); err != nil {
     panic(err)
 }
 
