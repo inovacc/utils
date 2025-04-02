@@ -103,7 +103,6 @@ func FormatCNPJ(cnpj string) string {
 			result[i] = r
 		}
 	}
-
 	return string(result)
 }
 
