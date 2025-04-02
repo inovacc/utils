@@ -137,15 +137,15 @@ This package provides functions for compressing and decompressing data using var
 
 ```go
 data := []byte("Hello, World!")
-compressor := compress.NewCompress(compress.TypeZip, data)
+compressor := compress.NewCompress(compress.TypeZip)
 
-compressedData, err := compressor.Compress()
+compressedData, err := compressor.Compress(data)
 if err != nil {
     panic(err)
 }
 fmt.Println("Compressed Data:", compressedData)
 
-decompressedData, err := compressor.Decompress()
+decompressedData, err := compressor.Decompress(compressedData)
 if err != nil {
     panic(err)
 }

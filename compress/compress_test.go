@@ -6,15 +6,15 @@ import (
 )
 
 func TestNewCompress(t *testing.T) {
-	v := NewCompress(TypeZip, []byte("test"))
-	b1, err := v.Compress()
+	v := NewCompress(TypeZip)
+	b1, err := v.Compress([]byte("test"))
 	if err != nil {
 		t.Errorf("Error compressing: %v", err)
 		return
 	}
 
-	v2 := NewCompress(TypeZip, b1)
-	b2, err := v2.Decompress()
+	v2 := NewCompress(TypeZip)
+	b2, err := v2.Decompress(b1)
 	if err != nil {
 		t.Errorf("Error decompressing: %v", err)
 		return
@@ -35,15 +35,15 @@ func TestNewCompress(t *testing.T) {
 		return
 	}
 
-	v = NewCompress(TypeGzip, []byte("test"))
-	b1, err = v.Compress()
+	v = NewCompress(TypeGzip)
+	b1, err = v.Compress([]byte("test"))
 	if err != nil {
 		t.Errorf("Error compressing: %v", err)
 		return
 	}
 
-	v2 = NewCompress(TypeGzip, b1)
-	b2, err = v2.Decompress()
+	v2 = NewCompress(TypeGzip)
+	b2, err = v2.Decompress(b1)
 	if err != nil {
 		t.Errorf("Error decompressing: %v", err)
 		return
@@ -64,15 +64,15 @@ func TestNewCompress(t *testing.T) {
 		return
 	}
 
-	v = NewCompress(TypeSnappy, []byte("test"))
-	b1, err = v.Compress()
+	v = NewCompress(TypeSnappy)
+	b1, err = v.Compress([]byte("test"))
 	if err != nil {
 		t.Errorf("Error compressing: %v", err)
 		return
 	}
 
-	v2 = NewCompress(TypeSnappy, b1)
-	b2, err = v2.Decompress()
+	v2 = NewCompress(TypeSnappy)
+	b2, err = v2.Decompress(b1)
 	if err != nil {
 		t.Errorf("Error decompressing: %v", err)
 		return
@@ -93,15 +93,15 @@ func TestNewCompress(t *testing.T) {
 		return
 	}
 
-	v = NewCompress(TypeLz4, []byte("test"))
-	b1, err = v.Compress()
+	v = NewCompress(TypeLz4)
+	b1, err = v.Compress([]byte("test"))
 	if err != nil {
 		t.Errorf("Error compressing: %v", err)
 		return
 	}
 
-	v2 = NewCompress(TypeLz4, b1)
-	b2, err = v2.Decompress()
+	v2 = NewCompress(TypeLz4)
+	b2, err = v2.Decompress(b1)
 	if err != nil {
 		t.Errorf("Error decompressing: %v", err)
 		return
@@ -122,15 +122,15 @@ func TestNewCompress(t *testing.T) {
 		return
 	}
 
-	v = NewCompress(TypeBrotli, []byte("test"))
-	b1, err = v.Compress()
+	v = NewCompress(TypeBrotli)
+	b1, err = v.Compress([]byte("test"))
 	if err != nil {
 		t.Errorf("Error compressing: %v", err)
 		return
 	}
 
-	v2 = NewCompress(TypeBrotli, b1)
-	b2, err = v2.Decompress()
+	v2 = NewCompress(TypeBrotli)
+	b2, err = v2.Decompress(b1)
 	if err != nil {
 		t.Errorf("Error decompressing: %v", err)
 		return
@@ -151,15 +151,15 @@ func TestNewCompress(t *testing.T) {
 		return
 	}
 
-	v = NewCompress(TypeZlib, []byte("test"))
-	b1, err = v.Compress()
+	v = NewCompress(TypeZlib)
+	b1, err = v.Compress([]byte("test"))
 	if err != nil {
 		t.Errorf("Error compressing: %v", err)
 		return
 	}
 
-	v2 = NewCompress(TypeZlib, b1)
-	b2, err = v2.Decompress()
+	v2 = NewCompress(TypeZlib)
+	b2, err = v2.Decompress(b1)
 	if err != nil {
 		t.Errorf("Error decompressing: %v", err)
 		return
@@ -180,15 +180,15 @@ func TestNewCompress(t *testing.T) {
 		return
 	}
 
-	v = NewCompress(TypeZstd, []byte("test"))
-	b1, err = v.Compress()
+	v = NewCompress(TypeZstd)
+	b1, err = v.Compress([]byte("test"))
 	if err != nil {
 		t.Errorf("Error compressing: %v", err)
 		return
 	}
 
-	v2 = NewCompress(TypeZstd, b1)
-	b2, err = v2.Decompress()
+	v2 = NewCompress(TypeZstd)
+	b2, err = v2.Decompress(b1)
 	if err != nil {
 		t.Errorf("Error decompressing: %v", err)
 		return

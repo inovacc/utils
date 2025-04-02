@@ -24,53 +24,51 @@ const (
 
 type Compress struct {
 	Type TypeStr
-	Data []byte
 }
 
-func NewCompress(t TypeStr, data []byte) *Compress {
+func NewCompress(t TypeStr) *Compress {
 	return &Compress{
 		Type: t,
-		Data: data,
 	}
 }
 
-func (c *Compress) Compress() ([]byte, error) {
+func (c *Compress) Compress(data []byte) ([]byte, error) {
 	switch c.Type {
 	case TypeZstd:
-		return zstd.Compress(c.Data)
+		return zstd.Compress(data)
 	case TypeGzip:
-		return gzip.Compress(c.Data)
+		return gzip.Compress(data)
 	case TypeSnappy:
-		return snappy.Compress(c.Data)
+		return snappy.Compress(data)
 	case TypeLz4:
-		return lz4.Compress(c.Data)
+		return lz4.Compress(data)
 	case TypeBrotli:
-		return brotli.Compress(c.Data)
+		return brotli.Compress(data)
 	case TypeZlib:
-		return zlib.Compress(c.Data)
+		return zlib.Compress(data)
 	case TypeZip:
-		return zip.Compress(c.Data)
+		return zip.Compress(data)
 	default:
 		return nil, nil
 	}
 }
 
-func (c *Compress) Decompress() ([]byte, error) {
+func (c *Compress) Decompress(data []byte) ([]byte, error) {
 	switch c.Type {
 	case TypeZstd:
-		return zstd.Decompress(c.Data)
+		return zstd.Decompress(data)
 	case TypeGzip:
-		return gzip.Decompress(c.Data)
+		return gzip.Decompress(data)
 	case TypeSnappy:
-		return snappy.Decompress(c.Data)
+		return snappy.Decompress(data)
 	case TypeLz4:
-		return lz4.Decompress(c.Data)
+		return lz4.Decompress(data)
 	case TypeBrotli:
-		return brotli.Decompress(c.Data)
+		return brotli.Decompress(data)
 	case TypeZlib:
-		return zlib.Decompress(c.Data)
+		return zlib.Decompress(data)
 	case TypeZip:
-		return zip.Decompress(c.Data)
+		return zip.Decompress(data)
 	default:
 		return nil, nil
 	}
