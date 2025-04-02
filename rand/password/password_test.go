@@ -14,12 +14,12 @@ func TestNewPassword(t *testing.T) {
 		WithUpper(true),
 	)
 
-	pass, err := p.Generate()
+	generated, err := p.Generate()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	t.Logf("Generated password: %s", pass)
+	t.Logf("Generated password: %s", generated)
 }
 
 func TestPassword_Generate_SingleCharTypes(t *testing.T) {

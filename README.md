@@ -47,6 +47,121 @@ This package provides functions for hashing data using the SHA-256 algorithm.
 * HashSHA256(data string) string: Hashes a string using SHA-256 and returns the hexadecimal representation.
 * HashSHA256Bytes(data []byte) string: Hashes a byte slice using SHA-256 and returns the hexadecimal representation.
 
+### file
+
+This package provides functions for reading from and writing to files.
+
+* WriteToFile(filename string, data []byte) error: Writes data to a file.
+* ReadFromFile(filename string) ([]byte, error): Reads data from a file.
+
+```go
+package main
+
+import (
+  "fmt"
+  "github.com/inovacc/utils/v2/file"
+)
+
+func main() {
+  filename:= "myfile.txt"
+  data, err := file.ReadFromFile(filename)
+  if err != nil {
+    panic(err)
+  }
+
+  fmt.Println(data)
+}
+```
+
+### compress
+
+This package provides functions for compressing and decompressing data using various algorithms.
+
+* Compress(data []byte) ([]byte, error): Compresses data using the specified algorithm.
+* Decompress(data []byte) ([]byte, error): Decompresses data using the specified algorithm.
+
+```go
+package main
+
+import (
+  "fmt"
+  "github.com/inovacc/utils/v2/compress"
+)
+
+func main() {
+  v := compress.NewCompress(compress.TypeZip, []byte("test"))
+  data, err := v.Compress()
+  if err != nil {
+    panic(err)
+  }
+
+  fmt.Println(data)
+}
+```
+
+### data/country/country/br/cpf
+
+This package provides functions for generating, formatting, and validating Brazilian CPF numbers.
+
+* GenerateCPF() string: Generates a valid CPF number (unformatted).
+* FormatCPF(cpf string) string: Formats a CPF as XXX.XXX.XXX-XX.
+* UnformatCPF(cpf string) string: Removes all non-numeric characters from the CPF.
+* ValidateCPF(value string) bool: Checks if a CPF number is valid.
+* Origin(value string) string: Returns the issuing region based on the 9th digit.
+
+### data/country/country/br/cnpj
+
+This package provides functions for generating, formatting, and validating Brazilian CNPJ numbers.
+
+* GenerateCNPJ() string: Generates a valid alphanumeric CNPJ.
+* ValidateCNPJ(cnpj string) bool: Checks whether an alphanumeric CNPJ is valid.
+* FormatCNPJ(cnpj string) string: Formats an alphanumeric CNPJ in the pattern "12.ABC.345/01DE-XX".
+* UnformatCNPJ(cnpj string) string: Removes formatting from an alphanumeric CNPJ.
+
+### data/country/country/br/cep
+
+This package provides functions for validating Brazilian postal codes (CEP).
+
+* IsValidCEP(input string) bool: Validates a Brazilian postal code (CEP).
+
+### rand/password
+
+This package provides functions for generating random passwords with various options.
+
+* NewPassword(opts ...Option) *Password: Creates a new Password instance with the given options.
+* WithLength(length int) Option: Sets the length of the password.
+* WithNumbers(enabled bool) Option: Enables or disables numbers in the password.
+* WithSpecial(enabled bool) Option: Enables or disables special characters in the password.
+* WithLower(enabled bool) Option: Enables or disables lowercase letters in the password.
+* WithUpper(enabled bool) Option: Enables or disables uppercase letters in the password.
+* (p *Password) Generate() (string, error): Generates a password based on the specified options.
+
+```go
+package main
+
+import (
+  "fmt"
+  "github.com/inovacc/utils/v2/rand/password"
+)
+
+func main() {
+  newPassword := password.NewPassword(
+    password.WithLength(16),
+    password.WithNumbers(true),
+    password.WithSpecial(true),
+    password.WithLower(true),
+    password.WithUpper(true),
+  )
+
+  generated, err := newPassword.Generate()
+  if err != nil {
+    panic(err)
+  }
+
+  fmt.Println(generated)
+}
+```
+
 ## To install
 
 ```sh
