@@ -13,6 +13,11 @@ This package provides functions for generating random strings, integers, and byt
 * RandomInt(min, max int) int: Generates a random integer between min and max using a secure random number generator.
 * RandomBytes(n uint32) []byte: Generates a random byte slice of length n.
 
+```go
+randomString := rand.RandomString(10)
+fmt.Println("Random String:", randomString)
+```
+
 ### encode
 
 This package provides functions for encoding and decoding data using various encoding schemes.
@@ -24,6 +29,18 @@ This package provides functions for encoding and decoding data using various enc
 * Base58Encode(data []byte) string: Encodes the given data to a Base58 string.
 * Base58Decode(data string) ([]byte, error): Decodes the given Base58 string to a byte slice.
 
+```go
+data := []byte("Hello, World!")
+encoded := encode.Base64Encode(data)
+fmt.Println("Base64 Encoded:", encoded)
+
+decoded, err := encode.Base64Decode(encoded)
+if err != nil {
+    panic(err)
+}
+fmt.Println("Base64 Decoded:", string(decoded))
+```
+
 ### crypto/password/argon2
 
 This package provides functions for hashing and verifying passwords using the Argon2ID algorithm.
@@ -33,6 +50,29 @@ This package provides functions for hashing and verifying passwords using the Ar
 * CheckPasswordHash(encoded, password string) (bool, error): Compares a plain-text password with a stored hash (JSON
   encoded).
 
+```go
+password := "mySecurePassword"
+params := &argon2.Params{
+    Memory:      64 * 1024,
+    Iterations:  3,
+    Parallelism: 2,
+    SaltLength:  16,
+    KeyLength:   32,
+}
+
+hash, err := argon2.HashPassword(password, params)
+if err != nil {
+    panic(err)
+}
+fmt.Println("Hashed Password:", hash)
+
+match, err := argon2.CheckPasswordHash(hash, password)
+if err != nil {
+    panic(err)
+}
+fmt.Println("Password Match:", match)
+```
+
 ### crypto/password/bcrypt
 
 This package provides functions for hashing and verifying passwords using the bcrypt algorithm.
@@ -40,12 +80,30 @@ This package provides functions for hashing and verifying passwords using the bc
 * HashPassword(password string) (string, error): Hashes a password using bcrypt.
 * CheckPasswordHash(password, hash string) bool: Checks if a plain-text password matches a bcrypt hash.
 
+```go
+password := "mySecurePassword"
+hash, err := bcrypt.HashPassword(password)
+if err != nil {
+    panic(err)
+}
+fmt.Println("Hashed Password:", hash)
+
+match := bcrypt.CheckPasswordHash(password, hash)
+fmt.Println("Password Match:", match)
+```
+
 ### crypto/hash
 
 This package provides functions for hashing data using the SHA-256 algorithm.
 
 * HashSHA256(data string) string: Hashes a string using SHA-256 and returns the hexadecimal representation.
 * HashSHA256Bytes(data []byte) string: Hashes a byte slice using SHA-256 and returns the hexadecimal representation.
+
+```go
+data := "Hello, World!"
+hashed := hash.Sha256(data)
+fmt.Println("SHA-256 Hash:", hashed)
+```
 
 ### file
 
@@ -55,22 +113,19 @@ This package provides functions for reading from and writing to files.
 * ReadFromFile(filename string) ([]byte, error): Reads data from a file.
 
 ```go
-package main
+filename := "myfile.txt"
+data := []byte("Hello, World!")
 
-import (
-  "fmt"
-  "github.com/inovacc/utils/v2/file"
-)
-
-func main() {
-  filename:= "myfile.txt"
-  data, err := file.ReadFromFile(filename)
-  if err != nil {
+err := file.WriteToFile(filename, data)
+if err != nil {
     panic(err)
-  }
-
-  fmt.Println(data)
 }
+
+readData, err := file.ReadFromFile(filename)
+if err != nil {
+    panic(err)
+}
+fmt.Println("Read Data:", string(readData))
 ```
 
 ### compress
@@ -81,22 +136,20 @@ This package provides functions for compressing and decompressing data using var
 * Decompress(data []byte) ([]byte, error): Decompresses data using the specified algorithm.
 
 ```go
-package main
+data := []byte("Hello, World!")
+compressor := compress.NewCompress(compress.TypeZip, data)
 
-import (
-  "fmt"
-  "github.com/inovacc/utils/v2/compress"
-)
-
-func main() {
-  v := compress.NewCompress(compress.TypeZip, []byte("test"))
-  data, err := v.Compress()
-  if err != nil {
+compressedData, err := compressor.Compress()
+if err != nil {
     panic(err)
-  }
-
-  fmt.Println(data)
 }
+fmt.Println("Compressed Data:", compressedData)
+
+decompressedData, err := compressor.Decompress()
+if err != nil {
+    panic(err)
+}
+fmt.Println("Decompressed Data:", string(decompressedData))
 ```
 
 ### data/country/country/br/cpf
@@ -109,6 +162,20 @@ This package provides functions for generating, formatting, and validating Brazi
 * ValidateCPF(value string) bool: Checks if a CPF number is valid.
 * Origin(value string) string: Returns the issuing region based on the 9th digit.
 
+```go
+cpfNumber := cpf.GenerateCPF()
+fmt.Println("Generated CPF:", cpfNumber)
+
+formattedCPF := cpf.FormatCPF(cpfNumber)
+fmt.Println("Formatted CPF:", formattedCPF)
+
+isValid := cpf.ValidateCPF(cpfNumber)
+fmt.Println("Is CPF Valid:", isValid)
+
+origin := cpf.Origin(cpfNumber)
+fmt.Println("CPF Origin:", origin)
+```
+
 ### data/country/country/br/cnpj
 
 This package provides functions for generating, formatting, and validating Brazilian CNPJ numbers.
@@ -118,11 +185,28 @@ This package provides functions for generating, formatting, and validating Brazi
 * FormatCNPJ(cnpj string) string: Formats an alphanumeric CNPJ in the pattern "12.ABC.345/01DE-XX".
 * UnformatCNPJ(cnpj string) string: Removes formatting from an alphanumeric CNPJ.
 
+```go
+cnpjNumber := cnpj.GenerateCNPJ()
+fmt.Println("Generated CNPJ:", cnpjNumber)
+
+formattedCNPJ := cnpj.FormatCNPJ(cnpjNumber)
+fmt.Println("Formatted CNPJ:", formattedCNPJ)
+
+isValid := cnpj.ValidateCNPJ(cnpjNumber)
+fmt.Println("Is CNPJ Valid:", isValid)
+```
+
 ### data/country/country/br/cep
 
 This package provides functions for validating Brazilian postal codes (CEP).
 
 * IsValidCEP(input string) bool: Validates a Brazilian postal code (CEP).
+
+```go
+cepCode := "12345678"
+isValid := cep.IsValidCEP(cepCode)
+fmt.Println("Is CEP Valid:", isValid)
+```
 
 ### rand/password
 
@@ -138,31 +222,24 @@ This package provides functions for generating random passwords with various opt
 
 ```go
 newPassword := password.NewPassword(
-  password.WithLength(16),
-  password.WithNumbers(true),
-  password.WithSpecial(true),
-  password.WithLower(true),
-  password.WithUpper(true),
+    password.WithLength(16),
+    password.WithNumbers(true),
+    password.WithSpecial(true),
+    password.WithLower(true),
+    password.WithUpper(true),
 )
 
 generated, err := newPassword.Generate()
 if err != nil {
-  ...
+    panic(err)
 }
+fmt.Println("Generated Password:", generated)
 ```
 
 ## To install
 
 ```sh
 go get -u github.com/inovacc/utils/v2
-```
-
-## Usage
-
-Import the necessary packages in your Go code and use the provided functions as needed. For example:
-
-```go
-randomString := rand.RandomString(10)
 ```
 
 ## License
