@@ -20,7 +20,7 @@ func TestNewCompress(t *testing.T) {
 		return
 	}
 
-	if bytes.Compare(b2, []byte("test")) != 0 {
+	if !bytes.Equal(b2, []byte("test")) {
 		t.Errorf("Expected 'test', got '%s'", string(b2))
 		return
 	}
@@ -49,7 +49,7 @@ func TestNewCompress(t *testing.T) {
 		return
 	}
 
-	if bytes.Compare(b2, []byte("test")) != 0 {
+	if !bytes.Equal(b2, []byte("test")) {
 		t.Errorf("Expected 'test', got '%s'", string(b2))
 		return
 	}
@@ -78,7 +78,7 @@ func TestNewCompress(t *testing.T) {
 		return
 	}
 
-	if bytes.Compare(b2, []byte("test")) != 0 {
+	if !bytes.Equal(b2, []byte("test")) {
 		t.Errorf("Expected 'test', got '%s'", string(b2))
 		return
 	}
@@ -107,7 +107,7 @@ func TestNewCompress(t *testing.T) {
 		return
 	}
 
-	if bytes.Compare(b2, []byte("test")) != 0 {
+	if !bytes.Equal(b2, []byte("test")) {
 		t.Errorf("Expected 'test', got '%s'", string(b2))
 		return
 	}
@@ -136,7 +136,7 @@ func TestNewCompress(t *testing.T) {
 		return
 	}
 
-	if bytes.Compare(b2, []byte("test")) != 0 {
+	if !bytes.Equal(b2, []byte("test")) {
 		t.Errorf("Expected 'test', got '%s'", string(b2))
 		return
 	}
@@ -165,7 +165,7 @@ func TestNewCompress(t *testing.T) {
 		return
 	}
 
-	if bytes.Compare(b2, []byte("test")) != 0 {
+	if !bytes.Equal(b2, []byte("test")) {
 		t.Errorf("Expected 'test', got '%s'", string(b2))
 		return
 	}
@@ -194,7 +194,7 @@ func TestNewCompress(t *testing.T) {
 		return
 	}
 
-	if bytes.Compare(b2, []byte("test")) != 0 {
+	if !bytes.Equal(b2, []byte("test")) {
 		t.Errorf("Expected 'test', got '%s'", string(b2))
 		return
 	}

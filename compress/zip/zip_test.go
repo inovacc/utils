@@ -22,7 +22,7 @@ func TestCompress(t *testing.T) {
 		return
 	}
 
-	if bytes.Compare(decompressed, []byte("test")) != 0 {
+	if !bytes.Equal(decompressed, []byte("test")) {
 		t.Errorf("Decompressed data does not match original data")
 		return
 	}
@@ -41,7 +41,7 @@ func TestDecompress(t *testing.T) {
 		return
 	}
 
-	if bytes.Compare(decompressed, []byte("test")) != 0 {
+	if !bytes.Equal(decompressed, []byte("test")) {
 		t.Errorf("Decompressed data does not match original data")
 		return
 	}
