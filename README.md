@@ -1,6 +1,7 @@
 # utils [![Test](https://github.com/inovacc/utils/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/inovacc/utils/actions/workflows/test.yml)
 
-Collection of utility functions and packages for various cryptographic and encoding operations. The project is organized into several packages, each serving a specific purpose.
+Collection of utility functions and packages for various cryptographic and encoding operations. The project is organized
+into several packages, each serving a specific purpose.
 
 # Packages
 
@@ -27,8 +28,10 @@ This package provides functions for encoding and decoding data using various enc
 
 This package provides functions for hashing and verifying passwords using the Argon2ID algorithm.
 
-* HashPassword(password string, p *Params) (string, error): Generates a secure Argon2ID hash for the given password and parameters.
-* CheckPasswordHash(encoded, password string) (bool, error): Compares a plain-text password with a stored hash (JSON encoded).
+* HashPassword(password string, p *Params) (string, error): Generates a secure Argon2ID hash for the given password and
+  parameters.
+* CheckPasswordHash(encoded, password string) (bool, error): Compares a plain-text password with a stored hash (JSON
+  encoded).
 
 ### crypto/password/bcrypt
 
@@ -51,6 +54,7 @@ go get -u github.com/inovacc/utils
 ```
 
 ## Usage
+
 Import the necessary packages in your Go code and use the provided functions as needed. For example:
 
 ```go
@@ -68,4 +72,5 @@ func main() {
 ```
 
 ## License
+
 This project is licensed under the MIT License. See the LICENSE file for more details.

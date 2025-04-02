@@ -63,3 +63,29 @@ func TestFormatCPF(t *testing.T) {
 		return
 	}
 }
+
+func TestOrigin(t *testing.T) {
+	v := Origin("46216723715")
+	if v != "Rio de Janeiro and Espírito Santo" {
+		t.Errorf("Incorrect origin: %s", v)
+		return
+	}
+
+	v = Origin("46947778824")
+	if v != "São Paulo" {
+		t.Errorf("Incorrect origin: %s", v)
+		return
+	}
+
+	v = Origin("16700194113")
+	if v != "Distrito Federal, Goiás, Mato Grosso do Sul, and Tocantins" {
+		t.Errorf("Incorrect origin: %s", v)
+		return
+	}
+
+	v = Origin("550131936")
+	if v != "" {
+		t.Errorf("Incorrect origin: %s", v)
+		return
+	}
+}
