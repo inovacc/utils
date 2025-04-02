@@ -36,7 +36,7 @@ func TestReadFromFile(t *testing.T) {
 		return
 	}
 
-	if bytes.Compare(data, testData) != 0 {
+	if !bytes.Equal(data, testData) {
 		t.Errorf("ReadFromFile returned incorrect data: %s", data)
 		return
 	}
