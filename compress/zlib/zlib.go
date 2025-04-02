@@ -1,4 +1,4 @@
-package compress
+package zlib
 
 import (
 	"bytes"
@@ -6,7 +6,7 @@ import (
 	"io"
 )
 
-func ZlibCompress(data []byte) ([]byte, error) {
+func Compress(data []byte) ([]byte, error) {
 	var b bytes.Buffer
 	w := zlib.NewWriter(&b)
 	_, err := w.Write(data)
@@ -19,7 +19,7 @@ func ZlibCompress(data []byte) ([]byte, error) {
 	return b.Bytes(), nil
 }
 
-func ZlibDecompress(data []byte) ([]byte, error) {
+func Decompress(data []byte) ([]byte, error) {
 	r, err := zlib.NewReader(bytes.NewReader(data))
 	if err != nil {
 		return nil, err

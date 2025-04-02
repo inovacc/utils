@@ -1,5 +1,15 @@
 package compress
 
+import (
+	"github.com/inovacc/utils/v2/compress/brotli"
+	"github.com/inovacc/utils/v2/compress/gzip"
+	"github.com/inovacc/utils/v2/compress/lz4"
+	"github.com/inovacc/utils/v2/compress/snappy"
+	"github.com/inovacc/utils/v2/compress/zip"
+	"github.com/inovacc/utils/v2/compress/zlib"
+	"github.com/inovacc/utils/v2/compress/zstd"
+)
+
 type TypeStr string
 
 const (
@@ -27,19 +37,19 @@ func NewCompress(t TypeStr, data []byte) *Compress {
 func (c *Compress) Compress() ([]byte, error) {
 	switch c.Type {
 	case TypeZstd:
-		return ZstdCompress(c.Data)
+		return zstd.Compress(c.Data)
 	case TypeGzip:
-		return GzipCompress(c.Data)
+		return gzip.Compress(c.Data)
 	case TypeSnappy:
-		return SnappyCompress(c.Data)
+		return snappy.Compress(c.Data)
 	case TypeLz4:
-		return Lz4Compress(c.Data)
+		return lz4.Compress(c.Data)
 	case TypeBrotli:
-		return BrotliCompress(c.Data)
+		return brotli.Compress(c.Data)
 	case TypeZlib:
-		return ZlibCompress(c.Data)
+		return zlib.Compress(c.Data)
 	case TypeZip:
-		return ZipCompress(c.Data)
+		return zip.Compress(c.Data)
 	default:
 		return nil, nil
 	}
@@ -48,19 +58,19 @@ func (c *Compress) Compress() ([]byte, error) {
 func (c *Compress) Decompress() ([]byte, error) {
 	switch c.Type {
 	case TypeZstd:
-		return ZstdDecompress(c.Data)
+		return zstd.Decompress(c.Data)
 	case TypeGzip:
-		return GzipDecompress(c.Data)
+		return gzip.Decompress(c.Data)
 	case TypeSnappy:
-		return SnappyDecompress(c.Data)
+		return snappy.Decompress(c.Data)
 	case TypeLz4:
-		return Lz4Decompress(c.Data)
+		return lz4.Decompress(c.Data)
 	case TypeBrotli:
-		return BrotliDecompress(c.Data)
+		return brotli.Decompress(c.Data)
 	case TypeZlib:
-		return ZlibDecompress(c.Data)
+		return zlib.Decompress(c.Data)
 	case TypeZip:
-		return ZipDecompress(c.Data)
+		return zip.Decompress(c.Data)
 	default:
 		return nil, nil
 	}

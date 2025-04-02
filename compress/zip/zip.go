@@ -1,4 +1,4 @@
-package compress
+package zip
 
 import (
 	"archive/zip"
@@ -6,7 +6,7 @@ import (
 	"io"
 )
 
-func ZipCompress(data []byte) ([]byte, error) {
+func Compress(data []byte) ([]byte, error) {
 	var b bytes.Buffer
 	w := zip.NewWriter(&b)
 	f, err := w.Create("data")
@@ -23,7 +23,7 @@ func ZipCompress(data []byte) ([]byte, error) {
 	return b.Bytes(), nil
 }
 
-func ZipDecompress(data []byte) ([]byte, error) {
+func Decompress(data []byte) ([]byte, error) {
 	r, err := zip.NewReader(bytes.NewReader(data), int64(len(data)))
 	if err != nil {
 		return nil, err

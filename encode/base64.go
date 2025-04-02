@@ -2,7 +2,6 @@ package encode
 
 import (
 	"encoding/base64"
-	"github.com/inovacc/base62"
 )
 
 func Base64Encode(data []byte) string {
@@ -10,7 +9,7 @@ func Base64Encode(data []byte) string {
 }
 
 func Base64Decode(data string) ([]byte, error) {
-	decoded, err := base62.Decode(data)
+	decoded, err := base64.StdEncoding.DecodeString(data)
 	if err != nil {
 		return nil, err
 	}

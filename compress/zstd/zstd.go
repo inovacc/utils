@@ -1,4 +1,4 @@
-package compress
+package zstd
 
 import (
 	"bytes"
@@ -6,7 +6,7 @@ import (
 	"io"
 )
 
-func ZstdCompress(data []byte) ([]byte, error) {
+func Compress(data []byte) ([]byte, error) {
 	var b bytes.Buffer
 	w, err := zstd.NewWriter(&b)
 	if err != nil {
@@ -22,7 +22,7 @@ func ZstdCompress(data []byte) ([]byte, error) {
 	return b.Bytes(), nil
 }
 
-func ZstdDecompress(data []byte) ([]byte, error) {
+func Decompress(data []byte) ([]byte, error) {
 	r, err := zstd.NewReader(bytes.NewReader(data))
 	if err != nil {
 		return nil, err

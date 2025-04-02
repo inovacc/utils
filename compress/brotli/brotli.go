@@ -1,4 +1,4 @@
-package compress
+package brotli
 
 import (
 	"bytes"
@@ -6,7 +6,7 @@ import (
 	"io"
 )
 
-func BrotliCompress(data []byte) ([]byte, error) {
+func Compress(data []byte) ([]byte, error) {
 	var b bytes.Buffer
 	w := brotli.NewWriter(&b)
 	_, err := w.Write(data)
@@ -19,7 +19,7 @@ func BrotliCompress(data []byte) ([]byte, error) {
 	return b.Bytes(), nil
 }
 
-func BrotliDecompress(data []byte) ([]byte, error) {
+func Decompress(data []byte) ([]byte, error) {
 	r := brotli.NewReader(bytes.NewReader(data))
 	return io.ReadAll(r)
 }

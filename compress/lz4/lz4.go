@@ -1,4 +1,4 @@
-package compress
+package lz4
 
 import (
 	"bytes"
@@ -6,7 +6,7 @@ import (
 	"io"
 )
 
-func Lz4Compress(data []byte) ([]byte, error) {
+func Compress(data []byte) ([]byte, error) {
 	var b bytes.Buffer
 	w := lz4.NewWriter(&b)
 	_, err := w.Write(data)
@@ -19,7 +19,7 @@ func Lz4Compress(data []byte) ([]byte, error) {
 	return b.Bytes(), nil
 }
 
-func Lz4Decompress(data []byte) ([]byte, error) {
+func Decompress(data []byte) ([]byte, error) {
 	r := lz4.NewReader(bytes.NewReader(data))
 	return io.ReadAll(r)
 }
