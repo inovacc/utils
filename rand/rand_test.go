@@ -14,7 +14,12 @@ func TestRandomString(t *testing.T) {
 }
 
 func TestRandomInt(t *testing.T) {
-	v := RandomInt(0, 30)
+	v, err := RandomInt(0, 30)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
 	if v < 0 {
 		t.Error("number is not valid")
 		return
@@ -22,7 +27,12 @@ func TestRandomInt(t *testing.T) {
 }
 
 func TestRandomBytes(t *testing.T) {
-	v := RandomBytes(20)
+	v, err := RandomBytes(20)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
 	if v == nil {
 		t.Error("bytes are empty")
 		return

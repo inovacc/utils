@@ -1,17 +1,88 @@
 package encode
 
 import (
-	"github.com/inovacc/base58"
+	"fmt"
+	"math/big"
 )
 
-func Base58Encode(data []byte) string {
-	return base58.StdEncoding.EncodeToString(data)
+const (
+	alphabetString = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+)
+
+type Alphabet struct {
+	chars     string
+	decodeMap [256]byte
 }
 
-func Base58Decode(data string) ([]byte, error) {
-	decoded, err := base58.StdEncoding.Decode(data)
-	if err != nil {
-		return nil, err
+func newAlphabet(chars string) *Alphabet {
+	a := &Alphabet{chars: chars}
+	for i := range a.decodeMap {
+		a.decodeMap[i] = 0xFF
 	}
-	return decoded, nil
+	for i, c := range []byte(chars) {
+		a.decodeMap[c] = byte(i)
+	}
+	return a
+}
+
+type base58Encoding struct {
+	alphabet *Alphabet
+}
+
+func (b *base58Encoding) EncodeStr(s string) (string, error) {
+	data, err := b.Encode([]byte(s))
+	return string(data), err
+}
+
+func (b *base58Encoding) DecodeStr(s string) (string, error) {
+	data, err := b.Decode([]byte(s))
+	return string(data), err
+}
+
+func newBase58Encoding() *base58Encoding {
+	return &base58Encoding{alphabet: newAlphabet(alphabetString)}
+}
+
+func (b *base58Encoding) Encode(data []byte) ([]byte, error) {
+	num := new(big.Int).SetBytes(data)
+	mod := new(big.Int)
+	output := make([]byte, 0)
+
+	for num.Sign() > 0 {
+		num.DivMod(num, big.NewInt(58), mod)
+		output = append(output, b.alphabet.chars[mod.Int64()])
+	}
+
+	for i := 0; i < len(data) && data[i] == 0; i++ {
+		output = append(output, b.alphabet.chars[0])
+	}
+
+	return []byte(reverse(output)), nil
+}
+
+func (b *base58Encoding) Decode(data []byte) ([]byte, error) {
+	result := big.NewInt(0)
+	for _, c := range data {
+		val := b.alphabet.decodeMap[c]
+		if val == 0xFF {
+			return nil, fmt.Errorf("invalid character: %q", c)
+		}
+		result.Mul(result, big.NewInt(58))
+		result.Add(result, big.NewInt(int64(val)))
+	}
+
+	decoded := result.Bytes()
+	zeroCount := 0
+	for zeroCount < len(data) && data[zeroCount] == b.alphabet.chars[0] {
+		zeroCount++
+	}
+
+	return append(make([]byte, zeroCount), decoded...), nil
+}
+
+func reverse(b []byte) string {
+	for i := 0; i < len(b)/2; i++ {
+		b[i], b[len(b)-1-i] = b[len(b)-1-i], b[i]
+	}
+	return string(b)
 }

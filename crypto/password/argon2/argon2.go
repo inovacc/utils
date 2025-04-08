@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"github.com/inovacc/base58"
+	"github.com/inovacc/utils/v2/encode"
 	"github.com/inovacc/utils/v2/rand"
 	"golang.org/x/crypto/argon2"
 )
@@ -60,7 +60,7 @@ func HashPassword(password string, p *Params) (string, error) {
 		return "", errors.New("password cannot be empty")
 	}
 
-	salt := rand.RandomBytes(p.SaltLength)
+	salt, _ := rand.RandomBytes(p.SaltLength)
 	hash, err := hashPassword(password, salt, p)
 	if err != nil {
 		return "", err
@@ -74,13 +74,20 @@ func HashPassword(password string, p *Params) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return base58.StdEncoding.Encode(encoded), nil
+
+	enc := encode.NewEncoding(encode.Base58)
+	dat, err := enc.Encode(encoded)
+	if err != nil {
+		return "", err
+	}
+	return string(dat), nil
 }
 
 // CheckPasswordHash compares a plain-text password with a stored hash (JSON encoded).
 func CheckPasswordHash(encoded, password string) (bool, error) {
 	var stored Hash
-	decode, err := base58.StdEncoding.Decode(encoded)
+	enc := encode.NewEncoding(encode.Base58)
+	decode, err := enc.DecodeStr(encoded)
 	if err != nil {
 		return false, errors.New("invalid encoding hash")
 	}
@@ -89,7 +96,7 @@ func CheckPasswordHash(encoded, password string) (bool, error) {
 		return false, errors.New("invalid hash length")
 	}
 
-	if err := json.Unmarshal(decode, &stored); err != nil {
+	if err := json.Unmarshal([]byte(decode), &stored); err != nil {
 		return false, errors.New("invalid unmarshal hash")
 	}
 

@@ -13,7 +13,12 @@ func TestCompress(t *testing.T) {
 		return
 	}
 
-	encodedStr := encode.Base64Encode(data)
+	enc := encode.NewEncoding(encode.Base64)
+	encodedStr, err := enc.Encode(data)
+	if err != nil {
+		t.Errorf("Encoding failed: %v", err)
+		return
+	}
 	t.Log(encodedStr)
 
 	decompressed, err := Decompress(data)
@@ -29,7 +34,8 @@ func TestCompress(t *testing.T) {
 }
 
 func TestDecompress(t *testing.T) {
-	data, err := encode.Base64Decode("UEsDBBQACAAIAAAAAAAAAAAAAAAAAAAAAAAEAAAAZGF0YSpJLS4BBAAA//9QSwcIDH5/2AoAAAAEAAAAUEsBAhQAFAAIAAgAAAAAAAx+f9gKAAAABAAAAAQAAAAAAAAAAAAAAAAAAAAAAGRhdGFQSwUGAAAAAAEAAQAyAAAAPAAAAAAA")
+	enc := encode.NewEncoding(encode.Base64)
+	data, err := enc.Decode([]byte("UEsDBBQACAAIAAAAAAAAAAAAAAAAAAAAAAAEAAAAZGF0YSpJLS4BBAAA//9QSwcIDH5/2AoAAAAEAAAAUEsBAhQAFAAIAAgAAAAAAAx+f9gKAAAABAAAAAQAAAAAAAAAAAAAAAAAAAAAAGRhdGFQSwUGAAAAAAEAAQAyAAAAPAAAAAAA"))
 	if err != nil {
 		t.Error("unable to decode data")
 		return

@@ -10,12 +10,21 @@ into several packages, each serving a specific purpose.
 This package provides functions for generating random strings, integers, and bytes.
 
 * RandomString(n int) string: Generates a random string of length n using a secure random number generator.
-* RandomInt(min, max int) int: Generates a random integer between min and max using a secure random number generator.
-* RandomBytes(n uint32) []byte: Generates a random byte slice of length n.
+* RandomInt(min, max int) int,err: Generates a random integer between min and max using a secure random number generator.
+* RandomBytes(n uint32) []byte,err: Generates a random byte slice of length n.
 
 ```go
+// Generate a random string of length 10
 randomString := rand.RandomString(10)
 fmt.Println("Random String:", randomString)
+
+// Generate a random integer between 1 and 100
+randomInt, _ := rand.RandomInt(1, 100)
+fmt.Println("Random Integer:", randomInt)
+
+// Generate a random byte slice of length 16
+randomBytes, _ := rand.RandomBytes(16)
+fmt.Println("Random Bytes:", randomBytes)
 ```
 
 ### encode
@@ -30,10 +39,12 @@ This package provides functions for encoding and decoding data using various enc
 * Base58Decode(data string) ([]byte, error): Decodes the given Base58 string to a byte slice.
 
 ```go
+// Base62 Encoding and Decoding
 data := []byte("Hello, World!")
 encoded := encode.Base64Encode(data)
 fmt.Println("Base64 Encoded:", encoded)
 
+// Base62 Decoding
 decoded, err := encode.Base64Decode(encoded)
 if err != nil {
     panic(err)

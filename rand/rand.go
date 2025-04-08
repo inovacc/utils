@@ -2,6 +2,7 @@ package rand
 
 import (
 	"crypto/rand"
+	"fmt"
 	"math/big"
 )
 
@@ -15,20 +16,20 @@ func RandomString(n int) string {
 	return string(b)
 }
 
-func RandomInt(min, max int) int {
+func RandomInt(min, max int) (int, error) {
 	if min >= max {
-		panic("invalid range")
+		return 0, fmt.Errorf("invalid range: min (%d) must be less than max (%d)", min, max)
 	}
 	diff := max - min
 	num, _ := rand.Int(rand.Reader, big.NewInt(int64(diff)))
-	return int(num.Int64()) + min
+	return int(num.Int64()) + min, nil
 }
 
-func RandomBytes(n uint32) []byte {
+func RandomBytes(n uint32) ([]byte, error) {
 	b := make([]byte, n)
 	_, err := rand.Read(b)
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("failed to generate random bytes: %w", err)
 	}
-	return b
+	return b, nil
 }
