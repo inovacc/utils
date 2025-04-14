@@ -2,6 +2,7 @@ package schedule
 
 import (
 	"context"
+	"errors"
 	"github.com/inovacc/utils/v2/schedule/cron"
 	"log/slog"
 )
@@ -45,7 +46,7 @@ func (pl printfLogger) Info(msg string, args ...any) {
 }
 
 func (pl printfLogger) Error(err error, msg string, args ...any) {
-	slog.Error(msg, err, args)
+	slog.Error(msg, append([]any{"err", err}, args...)...)
 }
 
 type Cron struct {
@@ -54,18 +55,16 @@ type Cron struct {
 }
 
 func NewCronScheduler(ctx context.Context) (*Cron, error) {
+	if ctx == nil {
+		return nil, errors.New("context cannot be nil")
+	}
+
 	c := cron.New(cron.WithSeconds(), cron.WithLogger(printfLogger{}))
 	c.Start()
 
 	go func() {
-		defer c.Stop()
-
-		for {
-			select {
-			case <-ctx.Done():
-				break
-			}
-		}
+		<-ctx.Done()
+		c.Stop()
 	}()
 
 	return &Cron{
@@ -75,12 +74,11 @@ func NewCronScheduler(ctx context.Context) (*Cron, error) {
 }
 
 func (c *Cron) AddFunc(spec string, cmd func()) (int, error) {
-	spec = fixWeekday(spec)
-	id, err := c.cron.AddFunc(spec, cmd)
+	id, err := c.cron.AddFunc(c.fixWeekday(spec), cmd)
 	return int(id), err
 }
 
-func fixWeekday(spec string) string {
+func (c *Cron) fixWeekday(spec string) string {
 	switch spec {
 	case Weekday:
 		return "0 0 0 * * 1-5"
