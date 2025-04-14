@@ -23,16 +23,18 @@ type Node struct {
 }
 
 type Tree struct {
-	fs   afero.Fs
-	root *Node
-	path string
+	fs      afero.Fs
+	root    *Node
+	path    string
+	exclude []string
 }
 
-func NewTree(fs afero.Fs, path string) *Tree {
+func NewTree(fs afero.Fs, path string, exclude ...string) *Tree {
 	return &Tree{
-		fs:   fs,
-		path: path,
-		root: &Node{Name: path},
+		fs:      fs,
+		path:    path,
+		root:    &Node{Name: filepath.Base(path)},
+		exclude: exclude,
 	}
 }
 
@@ -107,6 +109,10 @@ func (t *Tree) buildNode(path string, parent *Node) error {
 	})
 
 	for _, entry := range entries {
+		if t.shouldExclude(entry.Name()) {
+			continue
+		}
+
 		child := &Node{Name: entry.Name()}
 		parent.Children = append(parent.Children, child)
 
@@ -118,4 +124,13 @@ func (t *Tree) buildNode(path string, parent *Node) error {
 		}
 	}
 	return nil
+}
+
+func (t *Tree) shouldExclude(name string) bool {
+	for _, ex := range t.exclude {
+		if ex == name {
+			return true
+		}
+	}
+	return false
 }

@@ -13,7 +13,7 @@ func TestNewTree(t *testing.T) {
 
 	filePath := "testdata"
 
-	tree := NewTree(fs, filePath)
+	tree := NewTree(fs, filePath, "mock")
 
 	if err := tree.MakeTree(); err != nil {
 		t.Fatalf("Failed to build tree: %v", err)
