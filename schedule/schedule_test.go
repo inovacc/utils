@@ -3,6 +3,7 @@ package schedule
 import (
 	"context"
 	"fmt"
+	"sync"
 	"testing"
 	"time"
 )
@@ -13,10 +14,15 @@ func TestNewCronScheduler(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	message := "waiting"
+	var (
+		mu      sync.Mutex
+		message = "waiting"
+	)
 
 	done := func() {
+		mu.Lock()
 		message = "done"
+		mu.Unlock()
 	}
 
 	id, err := sc.AddFunc("@minute", done)
@@ -26,5 +32,11 @@ func TestNewCronScheduler(t *testing.T) {
 
 	<-time.After(time.Second * 61)
 
+	mu.Lock()
+	defer mu.Unlock()
 	fmt.Println(id, message)
+
+	if message != "done" {
+		t.Fatalf("expecting message 'done', got '%s'", message)
+	}
 }
