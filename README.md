@@ -10,7 +10,8 @@ into several packages, each serving a specific purpose.
 This package provides functions for generating random strings, integers, and bytes.
 
 * RandomString(n int) string: Generates a random string of length n using a secure random number generator.
-* RandomInt(min, max int) int,err: Generates a random integer between min and max using a secure random number generator.
+* RandomInt(min, max int) int,err: Generates a random integer between min and max using a secure random number
+  generator.
 * RandomBytes(n uint32) []byte,err: Generates a random byte slice of length n.
 
 ```go
