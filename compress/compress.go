@@ -10,6 +10,7 @@ import (
 	"github.com/inovacc/utils/v2/compress/zstd"
 )
 
+// TypeStr defines supported compression algorithm names.
 type TypeStr string
 
 const (
@@ -22,16 +23,17 @@ const (
 	TypeZip    TypeStr = "zip"
 )
 
+// Compress holds a compression type and provides methods to compress/decompress data.
 type Compress struct {
 	Type TypeStr
 }
 
+// NewCompress creates a new Compress instance with the specified compression type.
 func NewCompress(t TypeStr) *Compress {
-	return &Compress{
-		Type: t,
-	}
+	return &Compress{Type: t}
 }
 
+// Compress compresses the input byte slice using the specified compression algorithm.
 func (c *Compress) Compress(data []byte) ([]byte, error) {
 	switch c.Type {
 	case TypeZstd:
@@ -53,6 +55,7 @@ func (c *Compress) Compress(data []byte) ([]byte, error) {
 	}
 }
 
+// Decompress decompresses the input byte slice using the specified compression algorithm.
 func (c *Compress) Decompress(data []byte) ([]byte, error) {
 	switch c.Type {
 	case TypeZstd:
@@ -74,43 +77,16 @@ func (c *Compress) Decompress(data []byte) ([]byte, error) {
 	}
 }
 
+// String returns the name of the compression type.
 func (c *Compress) String() string {
-	switch c.Type {
-	case TypeZstd:
-		return "zstd"
-	case TypeGzip:
-		return "gzip"
-	case TypeSnappy:
-		return "snappy"
-	case TypeLz4:
-		return "lz4"
-	case TypeBrotli:
-		return "brotli"
-	case TypeZlib:
-		return "zlib"
-	case TypeZip:
-		return "zip"
-	default:
-		return ""
-	}
+	return c.TypeString()
 }
 
+// TypeString returns the string representation of the compression type.
 func (c *Compress) TypeString() string {
 	switch c.Type {
-	case TypeZstd:
-		return "zstd"
-	case TypeGzip:
-		return "gzip"
-	case TypeSnappy:
-		return "snappy"
-	case TypeLz4:
-		return "lz4"
-	case TypeBrotli:
-		return "brotli"
-	case TypeZlib:
-		return "zlib"
-	case TypeZip:
-		return "zip"
+	case TypeZstd, TypeGzip, TypeSnappy, TypeLz4, TypeBrotli, TypeZlib, TypeZip:
+		return string(c.Type)
 	default:
 		return ""
 	}

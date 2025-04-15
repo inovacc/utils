@@ -16,7 +16,7 @@ var notAccepted = []string{
 	"99999999999",
 }
 
-// GenerateCPF generates a valid CPF number (unformatted)
+// GenerateCPF generates a random, valid CPF number in unformatted form (11 digits).
 func GenerateCPF() string {
 	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
 	var sb strings.Builder
@@ -32,7 +32,7 @@ func GenerateCPF() string {
 	return fmt.Sprintf("%s%d%d", cpfBase, dv1, dv2)
 }
 
-// FormatCPF formats a CPF as XXX.XXX.XXX-XX
+// FormatCPF takes a CPF string (with or without formatting) and returns it in the formatted style: XXX.XXX.XXX-XX
 func FormatCPF(cpf string) string {
 	cpf = UnformatCPF(cpf)
 
@@ -55,13 +55,13 @@ func FormatCPF(cpf string) string {
 	return string(result)
 }
 
-// UnformatCPF removes all non-numeric characters from the CPF
+// UnformatCPF removes all non-numeric characters from the CPF string.
 func UnformatCPF(cpf string) string {
 	re := regexp.MustCompile(`[^0-9]`)
 	return re.ReplaceAllString(cpf, "")
 }
 
-// ValidateCPF checks if a CPF number is valid
+// ValidateCPF verifies if a given CPF is syntactically valid.
 func ValidateCPF(value string) bool {
 	cpf := UnformatCPF(value)
 	if len(cpf) != 11 || inNotAccepted(cpf) {
@@ -74,7 +74,7 @@ func ValidateCPF(value string) bool {
 	return cpf[9] == byte('0'+dv1) && cpf[10] == byte('0'+dv2)
 }
 
-// Origin returns the issuing region based on the 9th digit
+// Origin returns the Brazilian region associated with the CPF based on the 9th digit.
 func Origin(value string) string {
 	cpf := UnformatCPF(value)
 	if len(cpf) != 11 {
@@ -110,8 +110,7 @@ func Origin(value string) string {
 	}
 }
 
-// --- Helper functions ---
-
+// inNotAccepted checks if the CPF is one of the known invalid patterns (e.g., all digits the same).
 func inNotAccepted(cpf string) bool {
 	for _, invalid := range notAccepted {
 		if cpf == invalid {
@@ -121,6 +120,7 @@ func inNotAccepted(cpf string) bool {
 	return false
 }
 
+// calculateFirstDigit computes the first verification digit from the CPF base.
 func calculateFirstDigit(base string) int {
 	sum := 0
 	for i := 0; i < 9; i++ {
@@ -134,6 +134,7 @@ func calculateFirstDigit(base string) int {
 	return rest
 }
 
+// calculateSecondDigit computes the second verification digit using the base + first digit.
 func calculateSecondDigit(base string) int {
 	sum := 0
 	for i := 0; i < 10; i++ {

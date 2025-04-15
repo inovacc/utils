@@ -1,32 +1,14 @@
 package encode
 
 import (
-	"errors"
+	"bytes"
+	"fmt"
+	"math/big"
 )
 
 var (
-	encodeTable = [62]byte{
-		'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
-		'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f',
-		'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
-		'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-	}
-	decodeTable [128]int8
+	base62Alphabet = []byte("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
 )
-
-const (
-	compactMask = 0x1E
-	mask5Bits   = 0x1F
-)
-
-func init() {
-	for i := range decodeTable {
-		decodeTable[i] = -1
-	}
-	for i, b := range encodeTable {
-		decodeTable[b] = int8(i)
-	}
-}
 
 type base62Encoding struct{}
 
@@ -45,128 +27,31 @@ func (e *base62Encoding) DecodeStr(s string) (string, error) {
 }
 
 func (e *base62Encoding) Encode(data []byte) ([]byte, error) {
-	bs := newBitInputStream(data)
-	result := make([]byte, 0, len(data)*8/5+1)
+	num := new(big.Int).SetBytes(data)
+	base := big.NewInt(62)
+	zero := big.NewInt(0)
 
-	for bs.HasMore() {
-		rawBits := bs.ReadBits(6)
-
-		var bits int
-		if rawBits&compactMask == compactMask {
-			bits = rawBits & mask5Bits
-			bs.SeekBit(-1)
-		} else {
-			bits = rawBits
-		}
-
-		result = append(result, encodeTable[bits])
+	var encoded []byte
+	for num.Cmp(zero) > 0 {
+		mod := new(big.Int)
+		num.DivMod(num, base, mod)
+		encoded = append([]byte{base62Alphabet[mod.Int64()]}, encoded...)
 	}
-	return result, nil
+	return encoded, nil
 }
 
 func (e *base62Encoding) Decode(input []byte) ([]byte, error) {
-	bs := newBitOutputStream(len(input) * 6)
+	base := big.NewInt(62)
+	result := big.NewInt(0)
 
-	for i := 0; i < len(input); i++ {
-		c := input[i]
-		if c >= 128 || decodeTable[c] == -1 {
-			return nil, errors.New("invalid Base62 character: " + string(c))
+	for _, c := range input {
+		index := bytes.IndexByte(base62Alphabet, c)
+		if index < 0 {
+			return nil, fmt.Errorf("invalid character: %c", c)
 		}
-
-		bits := int(decodeTable[c])
-		var bitsCount int
-
-		if bits&compactMask == compactMask {
-			bitsCount = 5
-		} else if i == len(input)-1 {
-			bitsCount = bs.BitsToNextByte()
-		} else {
-			bitsCount = 6
-		}
-
-		bs.WriteBits(bitsCount, bits)
+		result.Mul(result, base)
+		result.Add(result, big.NewInt(int64(index)))
 	}
 
-	return bs.Bytes(), nil
-}
-
-// bitInputStream implementation
-type bitInputStream struct {
-	buf    []byte
-	offset int
-}
-
-func newBitInputStream(data []byte) *bitInputStream {
-	return &bitInputStream{buf: data}
-}
-
-func (b *bitInputStream) SeekBit(pos int) {
-	b.offset += pos
-}
-
-func (b *bitInputStream) ReadBits(bitsCount int) int {
-	bitNum := b.offset % 8
-	byteNum := b.offset / 8
-
-	firstRead := m(8-bitNum, bitsCount)
-	secondRead := bitsCount - firstRead
-
-	result := int((b.buf[byteNum] >> bitNum) & ((1 << firstRead) - 1))
-	if secondRead > 0 && byteNum+1 < len(b.buf) {
-		result |= int(b.buf[byteNum+1]&((1<<secondRead)-1)) << firstRead
-	}
-
-	b.offset += bitsCount
-	return result
-}
-
-func (b *bitInputStream) HasMore() bool {
-	return b.offset < len(b.buf)*8
-}
-
-// bitOutputStream implementation
-type bitOutputStream struct {
-	buf    []byte
-	offset int
-}
-
-func newBitOutputStream(capacity int) *bitOutputStream {
-	return &bitOutputStream{buf: make([]byte, capacity/8)}
-}
-
-func (b *bitOutputStream) WriteBits(bitsCount, bits int) {
-	bitNum := b.offset % 8
-	byteNum := b.offset / 8
-
-	firstWrite := m(8-bitNum, bitsCount)
-	secondWrite := bitsCount - firstWrite
-
-	b.buf[byteNum] |= byte(bits&((1<<firstWrite)-1)) << bitNum
-	if secondWrite > 0 {
-		b.buf[byteNum+1] |= byte(bits >> firstWrite)
-	}
-
-	b.offset += bitsCount
-}
-
-func (b *bitOutputStream) BitsToNextByte() int {
-	if b.offset%8 == 0 {
-		return 0
-	}
-	return 8 - b.offset%8
-}
-
-func (b *bitOutputStream) Bytes() []byte {
-	size := b.offset / 8
-	if b.offset%8 > 0 {
-		size++
-	}
-	return b.buf[:size]
-}
-
-func m(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
+	return result.Bytes(), nil
 }

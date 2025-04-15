@@ -7,8 +7,10 @@ import (
 	"math/big"
 )
 
+// Option is a functional option type for configuring password generation.
 type Option func(*Password)
 
+// passwordOptions defines character sets for password generation.
 var passwordOptions = map[string]string{
 	"num":         "1234567890",
 	"specialChar": "!@#$%&'()*+,^-./:;<=>?[]_`{~}|",
@@ -16,6 +18,7 @@ var passwordOptions = map[string]string{
 	"upperCase":   "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
 }
 
+// Password holds configuration for generating passwords.
 type Password struct {
 	length      int
 	hasNumbers  bool
@@ -24,6 +27,8 @@ type Password struct {
 	hasUpper    bool
 }
 
+// NewPassword constructs a Password with provided options.
+// By default, it creates a password of length 8 with no character types enabled.
 func NewPassword(opts ...Option) *Password {
 	p := &Password{
 		length: 8,
@@ -35,6 +40,7 @@ func NewPassword(opts ...Option) *Password {
 	return p
 }
 
+// WithLength sets the length of the password (8–128).
 func WithLength(length int) Option {
 	return func(p *Password) {
 		if length >= 8 && length <= 128 {
@@ -45,30 +51,36 @@ func WithLength(length int) Option {
 	}
 }
 
+// WithNumbers enables or disables numeric characters in the password.
 func WithNumbers(enabled bool) Option {
 	return func(p *Password) {
 		p.hasNumbers = enabled
 	}
 }
 
+// WithSpecial enables or disables special characters in the password.
 func WithSpecial(enabled bool) Option {
 	return func(p *Password) {
 		p.hashSpecial = enabled
 	}
 }
 
+// WithLower enables or disables lowercase letters in the password.
 func WithLower(enabled bool) Option {
 	return func(p *Password) {
 		p.hasLower = enabled
 	}
 }
 
+// WithUpper enables or disables uppercase letters in the password.
 func WithUpper(enabled bool) Option {
 	return func(p *Password) {
 		p.hasUpper = enabled
 	}
 }
 
+// Generate builds a password using the configured options.
+// It ensures at least one character from each enabled category is included.
 func (p *Password) Generate() (string, error) {
 	var passInfo string
 	var passChars []rune
@@ -101,6 +113,7 @@ func (p *Password) Generate() (string, error) {
 		return "", errors.New("no character sets selected, please enable at least one")
 	}
 
+	// Fill the rest with the password
 	for len(passChars) < p.length {
 		passChars = append(passChars, p.getRandomChar(passInfo))
 	}
@@ -109,11 +122,13 @@ func (p *Password) Generate() (string, error) {
 	return string(passChars), nil
 }
 
+// getRandomChar selects one rune at random from the input string.
 func (p *Password) getRandomChar(fromString string) rune {
 	index, _ := rand.Int(rand.Reader, big.NewInt(int64(len(fromString))))
 	return rune(fromString[index.Int64()])
 }
 
+// shuffleRunes performs Fisher–Yates shuffle to randomize rune order.
 func (p *Password) shuffleRunes(runes []rune) {
 	for i := len(runes) - 1; i > 0; i-- {
 		jBig, _ := rand.Int(rand.Reader, big.NewInt(int64(i+1)))

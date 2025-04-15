@@ -3,6 +3,12 @@
 Collection of utility functions and packages for various cryptographic and encoding operations. The project is organized
 into several packages, each serving a specific purpose.
 
+## To install
+
+```sh
+go get -u github.com/inovacc/utils/v2
+```
+
 # Packages
 
 ### crypto/rand
@@ -10,7 +16,8 @@ into several packages, each serving a specific purpose.
 This package provides functions for generating random strings, integers, and bytes.
 
 * RandomString(n int) string: Generates a random string of length n using a secure random number generator.
-* RandomInt(min, max int) int,err: Generates a random integer between min and max using a secure random number generator.
+* RandomInt(min, max int) int,err: Generates a random integer between min and max using a secure random number
+  generator.
 * RandomBytes(n uint32) []byte,err: Generates a random byte slice of length n.
 
 ```go
@@ -246,11 +253,52 @@ if err != nil {
 fmt.Println("Generated Password:", generated)
 ```
 
-## To install
+### reflection
 
-```sh
-go get -u github.com/inovacc/utils/v2
+This package provides utilities to manipulate Go structs using reflection.
+
+* MergeZeroFields(dst, src any): Merge fields from src into dst only if fields in dst are zero-valued.
+* CopyExportedFields(dst, src any): Copies all exported fields from src to dst regardless of zero-value.
+* ZeroStruct(v any): Sets all settable fields of the struct to their zero values.
+* StructToMap(input any) map[string]any: Converts a struct into a map of its exported fields.
+
+```go
+type MyStruct struct {
+    Name string
+    Age  int
+}
+
+s1 := MyStruct{Name: "Alice"}
+s2 := MyStruct{Age: 30}
+
+reflection.MergeZeroFields(&s2, &s1)
+fmt.Printf("%+v\n", s2) // Output: {Name:Alice Age:30}
 ```
+
+### hash
+
+This package provides hashing utilities.
+
+* Sha256(string) string: Returns the SHA256 hash of a string.
+* Sha256Bytes([]byte) string: Returns the SHA256 hash of byte slice.
+
+### file
+
+This package provides basic file I/O utilities.
+
+* WriteToFile(filename string, data []byte) error: Saves data to a file.
+* ReadFromFile(filename string) ([]byte, error): Reads data from a file.
+
+```go
+err := file.WriteToFile("example.txt", []byte("Hello"))
+data, err := file.ReadFromFile("example.txt")
+fmt.Println(string(data)) // Output: Hello
+```
+
+### encode
+
+* EncodeGob(data any) ([]byte, error): Encodes any Go value into binary using gob.
+* DecodeGob(data []byte, v any) error: Decodes gob data into a Go value.
 
 ## License
 
