@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/spf13/afero"
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"github.com/spf13/afero"
 )
 
 const (

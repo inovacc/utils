@@ -3,9 +3,10 @@ package tree
 import (
 	"bytes"
 	"errors"
-	"github.com/spf13/afero"
 	"os"
 	"testing"
+
+	"github.com/spf13/afero"
 )
 
 func TestNewTree(t *testing.T) {
