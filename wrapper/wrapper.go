@@ -8,7 +8,7 @@ import (
 type Wrapper[T any] interface {
 	MarshalJSON() ([]byte, error)
 	UnmarshalJSON([]byte) error
-	Clone(bool) Wrapper[T]
+	Clone(empty bool) Wrapper[T]
 	Get() T
 	Set(data T)
 }
