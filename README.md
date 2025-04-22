@@ -11,7 +11,7 @@ go get -u github.com/inovacc/utils/v2
 
 # Packages
 
-### crypto/rand
+### random
 
 This package provides functions for generating random strings, integers, and bytes.
 
@@ -22,19 +22,19 @@ This package provides functions for generating random strings, integers, and byt
 
 ```go
 // Generate a random string of length 10
-randomString := rand.RandomString(10)
+randomString := random.RandomString(10)
 fmt.Println("Random String:", randomString)
 
 // Generate a random integer between 1 and 100
-randomInt, _ := rand.RandomInt(1, 100)
+randomInt, _ := random.RandomInt(1, 100)
 fmt.Println("Random Integer:", randomInt)
 
 // Generate a random byte slice of length 16
-randomBytes, _ := rand.RandomBytes(16)
+randomBytes, _ := random.RandomBytes(16)
 fmt.Println("Random Bytes:", randomBytes)
 ```
 
-### encode
+### encoder
 
 This package provides functions for encoding and decoding data using various encoding schemes.
 
@@ -48,18 +48,18 @@ This package provides functions for encoding and decoding data using various enc
 ```go
 // Base62 Encoding and Decoding
 data := []byte("Hello, World!")
-encoded := encode.Base64Encode(data)
+encoded := encoder.Base64Encode(data)
 fmt.Println("Base64 Encoded:", encoded)
 
 // Base62 Decoding
-decoded, err := encode.Base64Decode(encoded)
+decoded, err := encoder.Base64Decode(encoded)
 if err != nil {
     panic(err)
 }
 fmt.Println("Base64 Decoded:", string(decoded))
 ```
 
-### crypto/password/argon2
+### cryptohelper/password
 
 This package provides functions for hashing and verifying passwords using the Argon2ID algorithm.
 
@@ -67,10 +67,13 @@ This package provides functions for hashing and verifying passwords using the Ar
   parameters.
 * CheckPasswordHash(encoded, password string) (bool, error): Compares a plain-text password with a stored hash (JSON
   encoded).
+* 
+* HashPassword(password string) (string, error): Hashes a password using bcrypt.
+* CheckPasswordHash(password, hash string) bool: Checks if a plain-text password matches a bcrypt hash.
 
 ```go
 password := "mySecurePassword"
-params := &argon2.Params{
+params := &password.Params{
     Memory:      64 * 1024,
     Iterations:  3,
     Parallelism: 2,
@@ -78,25 +81,18 @@ params := &argon2.Params{
     KeyLength:   32,
 }
 
-hash, err := argon2.HashPassword(password, params)
+hash, err := password.HashPassword(password, params)
 if err != nil {
     panic(err)
 }
 fmt.Println("Hashed Password:", hash)
 
-match, err := argon2.CheckPasswordHash(hash, password)
+match, err := password.CheckPasswordHash(hash, password)
 if err != nil {
     panic(err)
 }
 fmt.Println("Password Match:", match)
 ```
-
-### crypto/password/bcrypt
-
-This package provides functions for hashing and verifying passwords using the bcrypt algorithm.
-
-* HashPassword(password string) (string, error): Hashes a password using bcrypt.
-* CheckPasswordHash(password, hash string) bool: Checks if a plain-text password matches a bcrypt hash.
 
 ```go
 password := "mySecurePassword"
