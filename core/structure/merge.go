@@ -1,6 +1,7 @@
 package structure
 
 import (
+	"fmt"
 	"reflect"
 )
 
@@ -31,21 +32,44 @@ func MergeZeroFields(dst, src any) {
 // Useful for copying full configurations or cloning objects.
 //
 // Note: Unexported fields (lowercase) will be ignored.
-func CopyExportedFields(dst, src any) {
-	vDst := reflect.ValueOf(dst).Elem()
-	vSrc := reflect.ValueOf(src).Elem()
-	tSrc := vSrc.Type()
+func CopyExportedFields(dst, src any) error {
+	dstVal := reflect.ValueOf(dst)
+	if dstVal.Kind() != reflect.Ptr || dstVal.IsNil() {
+		return fmt.Errorf("dst must be a non-nil pointer to struct")
+	}
 
-	for i := 0; i < tSrc.NumField(); i++ {
-		field := tSrc.Field(i)
+	dstVal = dstVal.Elem()
+	if dstVal.Kind() != reflect.Struct {
+		return fmt.Errorf("dst must point to a struct")
+	}
+
+	srcVal := reflect.ValueOf(src)
+	if srcVal.Kind() == reflect.Ptr {
+		if srcVal.IsNil() {
+			return fmt.Errorf("src is a nil pointer")
+		}
+		srcVal = srcVal.Elem()
+	}
+
+	if srcVal.Kind() != reflect.Struct {
+		return fmt.Errorf("src must be a struct or pointer to struct")
+	}
+
+	srcType := srcVal.Type()
+
+	for i := 0; i < srcType.NumField(); i++ {
+		field := srcType.Field(i)
 		if field.PkgPath != "" { // unexported
 			continue
 		}
-		fieldDst := vDst.FieldByName(field.Name)
-		if fieldDst.IsValid() && fieldDst.CanSet() {
-			fieldDst.Set(vSrc.Field(i))
+
+		dstField := dstVal.FieldByName(field.Name)
+		if dstField.IsValid() && dstField.CanSet() {
+			dstField.Set(srcVal.Field(i))
 		}
 	}
+
+	return nil
 }
 
 // ZeroStruct resets all settable fields in a struct to their zero value.
