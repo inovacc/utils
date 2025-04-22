@@ -6,7 +6,7 @@ import (
 	"errors"
 
 	"github.com/inovacc/utils/v2/encoding/encoder"
-	"github.com/inovacc/utils/v2/random"
+	"github.com/inovacc/utils/v2/random/random"
 	"golang.org/x/crypto/argon2"
 )
 
