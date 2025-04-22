@@ -2,8 +2,8 @@ package password
 
 import "testing"
 
-func TestCheckPasswordHash(t *testing.T) {
-	v, err := HashPassword("test")
+func TestCheckPasswordHashBcrypt(t *testing.T) {
+	v, err := HashPasswordBcrypt("test")
 	if err != nil {
 		t.Error(err)
 		return
@@ -14,7 +14,7 @@ func TestCheckPasswordHash(t *testing.T) {
 		return
 	}
 
-	if !CheckPasswordHash("test", v) {
+	if !CheckPasswordHashBcrypt("test", v) {
 		t.Error("hash not match")
 		return
 	}

@@ -1,9 +1,10 @@
-package zlib
+package snappy
 
 import (
 	"bytes"
-	"github.com/inovacc/utils/v2/encoder"
 	"testing"
+
+	"github.com/inovacc/utils/v2/encoding/encoder"
 )
 
 func TestCompress(t *testing.T) {
@@ -12,14 +13,6 @@ func TestCompress(t *testing.T) {
 		t.Errorf("Compress failed: %v", err)
 		return
 	}
-
-	enc := encoder.NewEncoding(encoder.Base64)
-	encodedStr, err := enc.Encode(data)
-	if err != nil {
-		t.Errorf("Encoding failed: %v", err)
-		return
-	}
-	t.Log(encodedStr)
 
 	decompressed, err := Decompress(data)
 	if err != nil {
@@ -35,7 +28,7 @@ func TestCompress(t *testing.T) {
 
 func TestDecompress(t *testing.T) {
 	enc := encoder.NewEncoding(encoder.Base64)
-	data, err := enc.Decode([]byte("eJwqSS0uAQQAAP//BF0BwQ=="))
+	data, err := enc.Decode([]byte("BAx0ZXN0"))
 	if err != nil {
 		t.Error("unable to decode data")
 		return

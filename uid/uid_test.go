@@ -1,9 +1,10 @@
 package uid
 
 import (
+	"testing"
+
 	"github.com/google/uuid"
 	"github.com/inovacc/ksuid"
-	"testing"
 )
 
 func TestGenerateUUID(t *testing.T) {

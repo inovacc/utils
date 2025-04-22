@@ -8,18 +8,15 @@ import (
 func TestNewPassword(t *testing.T) {
 	p := NewPassword(
 		WithLength(16),
-		WithNumbers(true),
-		WithSpecial(true),
-		WithLower(true),
-		WithUpper(true),
+		WithNumbers(),
+		WithSpecial(),
+		WithLower(),
+		WithUpper(),
 	)
 
-	generated, err := p.Generate()
-	if err != nil {
+	if _, err := p.Generate(); err != nil {
 		t.Fatal(err)
 	}
-
-	t.Logf("Generated password: %s", generated)
 }
 
 func TestPassword_Generate_SingleCharTypes(t *testing.T) {
@@ -32,10 +29,7 @@ func TestPassword_Generate_SingleCharTypes(t *testing.T) {
 			name: "Only numbers",
 			options: []Option{
 				WithLength(12),
-				WithNumbers(true),
-				WithSpecial(false),
-				WithLower(false),
-				WithUpper(false),
+				WithNumbers(),
 			},
 			expectedSet: passwordOptions["num"],
 		},
@@ -43,10 +37,7 @@ func TestPassword_Generate_SingleCharTypes(t *testing.T) {
 			name: "Only upper case",
 			options: []Option{
 				WithLength(12),
-				WithNumbers(false),
-				WithSpecial(false),
-				WithLower(false),
-				WithUpper(true),
+				WithUpper(),
 			},
 			expectedSet: passwordOptions["upperCase"],
 		},
@@ -54,10 +45,7 @@ func TestPassword_Generate_SingleCharTypes(t *testing.T) {
 			name: "Only lower case",
 			options: []Option{
 				WithLength(12),
-				WithNumbers(false),
-				WithSpecial(false),
-				WithLower(true),
-				WithUpper(false),
+				WithLower(),
 			},
 			expectedSet: passwordOptions["lowerCase"],
 		},
@@ -65,10 +53,7 @@ func TestPassword_Generate_SingleCharTypes(t *testing.T) {
 			name: "Only special characters",
 			options: []Option{
 				WithLength(12),
-				WithNumbers(false),
-				WithSpecial(true),
-				WithLower(false),
-				WithUpper(false),
+				WithSpecial(),
 			},
 			expectedSet: passwordOptions["specialChar"],
 		},
@@ -89,7 +74,193 @@ func TestPassword_Generate_SingleCharTypes(t *testing.T) {
 					t.Errorf("character %q not in expected set %q", r, tt.expectedSet)
 				}
 			}
-			t.Logf("Generated password: %s", password)
 		})
+	}
+}
+
+func TestPassword_Generate_EdgeCases(t *testing.T) {
+	tests := []struct {
+		name        string
+		options     []Option
+		wantErr     bool
+		errContains string
+	}{
+		{
+			name: "Password too short",
+			options: []Option{
+				WithLength(7),
+				WithNumbers(),
+			},
+			wantErr:     true,
+			errContains: "length must be between 8 and 128",
+		},
+		{
+			name: "Password too long",
+			options: []Option{
+				WithLength(129),
+				WithNumbers(),
+			},
+			wantErr:     true,
+			errContains: "length must be between 8 and 128",
+		},
+		{
+			name:        "No options selected",
+			options:     []Option{WithLength(8)},
+			wantErr:     true,
+			errContains: "no character sets selected",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p := NewPassword(tt.options...)
+			password, err := p.Generate()
+
+			if tt.wantErr {
+				if err == nil {
+					t.Error("expected error, got none")
+					return
+				}
+				if !strings.Contains(err.Error(), tt.errContains) {
+					t.Errorf("error %q should contain %q", err.Error(), tt.errContains)
+				}
+				return
+			}
+
+			if err != nil {
+				t.Errorf("unexpected error: %v", err)
+			}
+			if password == "" {
+				t.Error("password should not be empty")
+			}
+		})
+	}
+}
+
+func TestPassword_Generate_CombinedCharTypes(t *testing.T) {
+	tests := []struct {
+		name    string
+		options []Option
+		verify  func(string) bool
+	}{
+		{
+			name: "Numbers and Special",
+			options: []Option{
+				WithLength(12),
+				WithNumbers(),
+				WithSpecial(),
+			},
+			verify: func(s string) bool {
+				hasNum := false
+				hasSpecial := false
+				for _, r := range s {
+					if strings.ContainsRune(passwordOptions["num"], r) {
+						hasNum = true
+					}
+					if strings.ContainsRune(passwordOptions["specialChar"], r) {
+						hasSpecial = true
+					}
+				}
+				return hasNum && hasSpecial
+			},
+		},
+		{
+			name: "All character types",
+			options: []Option{
+				WithLength(16),
+				WithNumbers(),
+				WithSpecial(),
+				WithLower(),
+				WithUpper(),
+			},
+			verify: func(s string) bool {
+				hasNum := false
+				hasSpecial := false
+				hasLower := false
+				hasUpper := false
+				for _, r := range s {
+					if strings.ContainsRune(passwordOptions["num"], r) {
+						hasNum = true
+					}
+					if strings.ContainsRune(passwordOptions["specialChar"], r) {
+						hasSpecial = true
+					}
+					if strings.ContainsRune(passwordOptions["lowerCase"], r) {
+						hasLower = true
+					}
+					if strings.ContainsRune(passwordOptions["upperCase"], r) {
+						hasUpper = true
+					}
+				}
+				return hasNum && hasSpecial && hasLower && hasUpper
+			},
+		},
+		{
+			name: "Upper and Lower only",
+			options: []Option{
+				WithLength(10),
+				WithUpper(),
+				WithLower(),
+			},
+			verify: func(s string) bool {
+				hasLower := false
+				hasUpper := false
+				for _, r := range s {
+					if strings.ContainsRune(passwordOptions["lowerCase"], r) {
+						hasLower = true
+					}
+					if strings.ContainsRune(passwordOptions["upperCase"], r) {
+						hasUpper = true
+					}
+				}
+				return hasLower && hasUpper
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p := NewPassword(tt.options...)
+			password, err := p.Generate()
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+
+			if !tt.verify(password) {
+				t.Error("password does not meet character type requirements")
+			}
+		})
+	}
+}
+
+func TestPassword_Generate_Distribution(t *testing.T) {
+	p := NewPassword(
+		WithLength(128),
+		WithNumbers(),
+		WithSpecial(),
+		WithLower(),
+		WithUpper(),
+	)
+
+	password, err := p.Generate()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	counts := make(map[string]int)
+	for _, r := range password {
+		for category, chars := range passwordOptions {
+			if strings.ContainsRune(chars, r) {
+				counts[category]++
+				break
+			}
+		}
+	}
+
+	// Check if each character type appears at least 100 times in a 128-char password
+	for category, count := range counts {
+		if count < 1 {
+			t.Errorf("character type %s appears only %d times in 128 characters", category, count)
+		}
 	}
 }

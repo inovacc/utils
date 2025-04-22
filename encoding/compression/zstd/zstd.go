@@ -1,15 +1,19 @@
-package lz4
+package zstd
 
 import (
 	"bytes"
-	"github.com/pierrec/lz4/v4"
 	"io"
+
+	"github.com/klauspost/compress/zstd"
 )
 
 func Compress(data []byte) ([]byte, error) {
 	var b bytes.Buffer
-	w := lz4.NewWriter(&b)
-	_, err := w.Write(data)
+	w, err := zstd.NewWriter(&b)
+	if err != nil {
+		return nil, err
+	}
+	_, err = w.Write(data)
 	if err != nil {
 		return nil, err
 	}
@@ -20,6 +24,10 @@ func Compress(data []byte) ([]byte, error) {
 }
 
 func Decompress(data []byte) ([]byte, error) {
-	r := lz4.NewReader(bytes.NewReader(data))
+	r, err := zstd.NewReader(bytes.NewReader(data))
+	if err != nil {
+		return nil, err
+	}
+	defer r.Close()
 	return io.ReadAll(r)
 }

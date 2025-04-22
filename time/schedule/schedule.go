@@ -3,8 +3,9 @@ package schedule
 import (
 	"context"
 	"errors"
-	"github.com/inovacc/utils/v2/schedule/cron"
 	"log/slog"
+
+	cron2 "github.com/inovacc/utils/v2/time/schedule/cron"
 )
 
 /*
@@ -50,7 +51,7 @@ func (pl printfLogger) Error(err error, msg string, args ...any) {
 }
 
 type Cron struct {
-	cron *cron.Cron
+	cron *cron2.Cron
 	ctx  context.Context
 }
 
@@ -59,7 +60,7 @@ func NewCronScheduler(ctx context.Context) (*Cron, error) {
 		return nil, errors.New("context cannot be nil")
 	}
 
-	c := cron.New(cron.WithSeconds(), cron.WithLogger(printfLogger{}))
+	c := cron2.New(cron2.WithSeconds(), cron2.WithLogger(printfLogger{}))
 	c.Start()
 
 	go func() {

@@ -1,13 +1,13 @@
 package compression
 
 import (
-	"github.com/inovacc/utils/v2/compression/brotli"
-	"github.com/inovacc/utils/v2/compression/gzip"
-	"github.com/inovacc/utils/v2/compression/lz4"
-	"github.com/inovacc/utils/v2/compression/snappy"
-	"github.com/inovacc/utils/v2/compression/zip"
-	"github.com/inovacc/utils/v2/compression/zlib"
-	"github.com/inovacc/utils/v2/compression/zstd"
+	"github.com/inovacc/utils/v2/encoding/compression/brotli"
+	"github.com/inovacc/utils/v2/encoding/compression/gzip"
+	"github.com/inovacc/utils/v2/encoding/compression/lz4"
+	"github.com/inovacc/utils/v2/encoding/compression/snappy"
+	"github.com/inovacc/utils/v2/encoding/compression/zip"
+	"github.com/inovacc/utils/v2/encoding/compression/zlib"
+	"github.com/inovacc/utils/v2/encoding/compression/zstd"
 )
 
 // TypeStr defines supported compression algorithm names.

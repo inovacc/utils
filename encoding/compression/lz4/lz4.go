@@ -1,14 +1,15 @@
-package brotli
+package lz4
 
 import (
 	"bytes"
-	"github.com/andybalholm/brotli"
 	"io"
+
+	"github.com/pierrec/lz4/v4"
 )
 
 func Compress(data []byte) ([]byte, error) {
 	var b bytes.Buffer
-	w := brotli.NewWriter(&b)
+	w := lz4.NewWriter(&b)
 	_, err := w.Write(data)
 	if err != nil {
 		return nil, err
@@ -20,6 +21,6 @@ func Compress(data []byte) ([]byte, error) {
 }
 
 func Decompress(data []byte) ([]byte, error) {
-	r := brotli.NewReader(bytes.NewReader(data))
+	r := lz4.NewReader(bytes.NewReader(data))
 	return io.ReadAll(r)
 }

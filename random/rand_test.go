@@ -10,7 +10,6 @@ func TestRandomString(t *testing.T) {
 		t.Error("string is empty")
 		return
 	}
-	t.Log(v)
 }
 
 func TestRandomInt(t *testing.T) {
@@ -37,5 +36,4 @@ func TestRandomBytes(t *testing.T) {
 		t.Error("bytes are empty")
 		return
 	}
-	t.Log(v)
 }

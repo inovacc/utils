@@ -7,8 +7,8 @@ import (
 	"github.com/inovacc/base58"
 )
 
-func TestHashPassword(t *testing.T) {
-	d, err := HashPassword("password", nil)
+func TestHashPasswordArgon2(t *testing.T) {
+	d, err := HashPasswordArgon2("password", nil)
 	if err != nil {
 		t.Fatalf("failed to hash password: %v", err)
 		return
@@ -30,18 +30,16 @@ func TestHashPassword(t *testing.T) {
 		t.Fatalf("expected hash length 32, got %d", len(h.Data))
 		return
 	}
-
-	t.Log(d)
 }
 
-func TestCheckPasswordHash(t *testing.T) {
-	d, err := HashPassword("password", nil)
+func TestCheckPasswordHashArgon2(t *testing.T) {
+	d, err := HashPasswordArgon2("password", nil)
 	if err != nil {
 		t.Fatalf("failed to hash password: %v", err)
 		return
 	}
 
-	ok, err := CheckPasswordHash(d, "password")
+	ok, err := CheckPasswordHashArgon2(d, "password")
 	if err != nil {
 		t.Fatalf("failed to check password hash: %v", err)
 		return

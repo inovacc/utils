@@ -3,7 +3,6 @@ package password
 import (
 	"crypto/rand"
 	"errors"
-	"fmt"
 	"math/big"
 )
 
@@ -43,79 +42,88 @@ func NewPassword(opts ...Option) *Password {
 // WithLength sets the length of the password (8–128).
 func WithLength(length int) Option {
 	return func(p *Password) {
-		if length >= 8 && length <= 128 {
-			p.length = length
-		} else {
-			fmt.Println("Length must be between 8 and 128 characters.")
-		}
+		p.length = length
 	}
 }
 
 // WithNumbers enables or disables numeric characters in the password.
-func WithNumbers(enabled bool) Option {
+func WithNumbers() Option {
 	return func(p *Password) {
-		p.hasNumbers = enabled
+		p.hasNumbers = true
 	}
 }
 
 // WithSpecial enables or disables special characters in the password.
-func WithSpecial(enabled bool) Option {
+func WithSpecial() Option {
 	return func(p *Password) {
-		p.hashSpecial = enabled
+		p.hashSpecial = true
 	}
 }
 
 // WithLower enables or disables lowercase letters in the password.
-func WithLower(enabled bool) Option {
+func WithLower() Option {
 	return func(p *Password) {
-		p.hasLower = enabled
+		p.hasLower = true
 	}
 }
 
 // WithUpper enables or disables uppercase letters in the password.
-func WithUpper(enabled bool) Option {
+func WithUpper() Option {
 	return func(p *Password) {
-		p.hasUpper = enabled
+		p.hasUpper = true
 	}
 }
 
 // Generate builds a password using the configured options.
 // It ensures at least one character from each enabled category is included.
 func (p *Password) Generate() (string, error) {
-	var passInfo string
-	var passChars []rune
-
 	if p.length < 8 || p.length > 128 {
 		return "", errors.New("length must be between 8 and 128 characters")
 	}
 
+	// Create a slice of enabled character sets
+	var enabledSets []string
 	if p.hasNumbers {
-		passInfo += passwordOptions["num"]
-		passChars = append(passChars, p.getRandomChar(passwordOptions["num"]))
+		enabledSets = append(enabledSets, "num")
 	}
-
 	if p.hashSpecial {
-		passInfo += passwordOptions["specialChar"]
-		passChars = append(passChars, p.getRandomChar(passwordOptions["specialChar"]))
+		enabledSets = append(enabledSets, "specialChar")
 	}
-
 	if p.hasLower {
-		passInfo += passwordOptions["lowerCase"]
-		passChars = append(passChars, p.getRandomChar(passwordOptions["lowerCase"]))
+		enabledSets = append(enabledSets, "lowerCase")
 	}
-
 	if p.hasUpper {
-		passInfo += passwordOptions["upperCase"]
-		passChars = append(passChars, p.getRandomChar(passwordOptions["upperCase"]))
+		enabledSets = append(enabledSets, "upperCase")
 	}
 
-	if passInfo == "" {
+	if len(enabledSets) == 0 {
 		return "", errors.New("no character sets selected, please enable at least one")
 	}
 
-	// Fill the rest with the password
+	var passChars []rune
+	charsPerSet := p.length / len(enabledSets)
+	extraChars := p.length % len(enabledSets)
+
+	// First, ensure minimum distribution from each set
+	for _, setName := range enabledSets {
+		currentCount := charsPerSet
+		if extraChars > 0 {
+			currentCount++
+			extraChars--
+		}
+
+		for i := 0; i < currentCount; i++ {
+			char := p.getRandomChar(passwordOptions[setName])
+			passChars = append(passChars, char)
+		}
+	}
+
+	// If we still need more characters (due to rounding), add them from a random enabled set
 	for len(passChars) < p.length {
-		passChars = append(passChars, p.getRandomChar(passInfo))
+		randomSetIndex := p.getRandomIndex(len(enabledSets))
+		setName := enabledSets[randomSetIndex]
+		char := p.getRandomChar(passwordOptions[setName])
+		passChars = append(passChars, char)
 	}
 
 	p.shuffleRunes(passChars)
@@ -135,4 +143,10 @@ func (p *Password) shuffleRunes(runes []rune) {
 		j := int(jBig.Int64())
 		runes[i], runes[j] = runes[j], runes[i]
 	}
+}
+
+// getRandomIndex returns a random index within the given range
+func (p *Password) getRandomIndex(max int) int {
+	index, _ := rand.Int(rand.Reader, big.NewInt(int64(max)))
+	return int(index.Int64())
 }

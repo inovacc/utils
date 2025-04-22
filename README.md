@@ -54,7 +54,7 @@ fmt.Println("Base64 Encoded:", encoded)
 // Base62 Decoding
 decoded, err := encoder.Base64Decode(encoded)
 if err != nil {
-    panic(err)
+panic(err)
 }
 fmt.Println("Base64 Decoded:", string(decoded))
 ```
@@ -67,29 +67,29 @@ This package provides functions for hashing and verifying passwords using the Ar
   parameters.
 * CheckPasswordHash(encoded, password string) (bool, error): Compares a plain-text password with a stored hash (JSON
   encoded).
-* 
+*
 * HashPassword(password string) (string, error): Hashes a password using bcrypt.
 * CheckPasswordHash(password, hash string) bool: Checks if a plain-text password matches a bcrypt hash.
 
 ```go
 password := "mySecurePassword"
 params := &password.Params{
-    Memory:      64 * 1024,
-    Iterations:  3,
-    Parallelism: 2,
-    SaltLength:  16,
-    KeyLength:   32,
+Memory:      64 * 1024,
+Iterations:  3,
+Parallelism: 2,
+SaltLength:  16,
+KeyLength:   32,
 }
 
 hash, err := password.HashPassword(password, params)
 if err != nil {
-    panic(err)
+panic(err)
 }
 fmt.Println("Hashed Password:", hash)
 
 match, err := password.CheckPasswordHash(hash, password)
 if err != nil {
-    panic(err)
+panic(err)
 }
 fmt.Println("Password Match:", match)
 ```
@@ -98,7 +98,7 @@ fmt.Println("Password Match:", match)
 password := "mySecurePassword"
 hash, err := bcrypt.HashPassword(password)
 if err != nil {
-    panic(err)
+panic(err)
 }
 fmt.Println("Hashed Password:", hash)
 
@@ -131,12 +131,12 @@ filename := "myfile.txt"
 data := []byte("Hello, World!")
 
 if err = file.WriteToFile(filename, data); err != nil {
-    panic(err)
+panic(err)
 }
 
 readData, err := file.ReadFromFile(filename)
 if err != nil {
-    panic(err)
+panic(err)
 }
 fmt.Println("Read Data:", string(readData))
 ```
@@ -154,13 +154,13 @@ compressor := compress.NewCompress(compress.TypeZip)
 
 compressedData, err := compressor.Compress(data)
 if err != nil {
-    panic(err)
+panic(err)
 }
 fmt.Println("Compressed Data:", compressedData)
 
 decompressedData, err := compressor.Decompress(compressedData)
 if err != nil {
-    panic(err)
+panic(err)
 }
 fmt.Println("Decompressed Data:", string(decompressedData))
 ```
@@ -235,16 +235,16 @@ This package provides functions for generating random passwords with various opt
 
 ```go
 newPassword := password.NewPassword(
-    password.WithLength(16),
-    password.WithNumbers(true),
-    password.WithSpecial(true),
-    password.WithLower(true),
-    password.WithUpper(true),
+password.WithLength(16),
+password.WithNumbers(true),
+password.WithSpecial(true),
+password.WithLower(true),
+password.WithUpper(true),
 )
 
 generated, err := newPassword.Generate()
 if err != nil {
-    panic(err)
+panic(err)
 }
 fmt.Println("Generated Password:", generated)
 ```
@@ -260,8 +260,8 @@ This package provides utilities to manipulate Go structs using reflection.
 
 ```go
 type MyStruct struct {
-    Name string
-    Age  int
+Name string
+Age  int
 }
 
 s1 := MyStruct{Name: "Alice"}
