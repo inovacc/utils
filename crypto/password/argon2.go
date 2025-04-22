@@ -1,11 +1,12 @@
-package argon2
+package password
 
 import (
 	"bytes"
 	"encoding/json"
 	"errors"
+
 	"github.com/inovacc/utils/v2/encode"
-	"github.com/inovacc/utils/v2/rand"
+	"github.com/inovacc/utils/v2/random"
 	"golang.org/x/crypto/argon2"
 )
 
@@ -61,7 +62,7 @@ func HashPassword(password string, p *Params) (string, error) {
 		return "", errors.New("password cannot be empty")
 	}
 
-	salt, _ := rand.RandomBytes(p.SaltLength)
+	salt, _ := random.RandomBytes(p.SaltLength)
 	hash, err := hashPassword(password, salt, p)
 	if err != nil {
 		return "", err

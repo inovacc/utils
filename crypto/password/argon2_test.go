@@ -1,9 +1,10 @@
-package argon2
+package password
 
 import (
 	"encoding/json"
-	"github.com/inovacc/base58"
 	"testing"
+
+	"github.com/inovacc/base58"
 )
 
 func TestHashPassword(t *testing.T) {

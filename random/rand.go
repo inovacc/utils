@@ -1,4 +1,4 @@
-package rand
+package random
 
 import (
 	"crypto/rand"
@@ -12,7 +12,7 @@ func RandomString(n int) string {
 	const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	b := make([]byte, n)
 	for i := range b {
-		// Secure random selection of an index from letters
+		// Secure a random selection of an index from letters
 		num, _ := rand.Int(rand.Reader, big.NewInt(int64(len(letters))))
 		b[i] = letters[num.Int64()]
 	}
