@@ -1,4 +1,4 @@
-# utils [![Test](https://github.com/inovacc/utils/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/inovacc/utils/actions/workflows/test.yml)
+# utils [![Test](https://github.com/inovacc/utils/actions/workflows/test.yml/badge.svg)](https://github.com/inovacc/utils/actions/workflows/test.yml)
 
 Collection of utility functions and packages for various cryptographic and encoding operations. The project is organized
 into several packages, each serving a specific purpose.
