@@ -51,7 +51,9 @@ func TestCopyExportedFields(t *testing.T) {
 	}
 	dst := &sampleConfig{}
 
-	CopyExportedFields(dst, src)
+	if err := CopyExportedFields(dst, src); err != nil {
+		t.Errorf("error copying exported fields: %v", err)
+	}
 
 	if !reflect.DeepEqual(dst, src) {
 		t.Errorf("Expected dst to match src, got: %+v", dst)

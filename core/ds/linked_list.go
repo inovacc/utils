@@ -6,15 +6,15 @@ type LinkedList[T any] interface {
 	Insert(value T)
 
 	// InsertAt adds a value at the specified position.
-	// Returns true if successful, false if position is invalid.
+	// Returns true if successful, false if the position is invalid.
 	InsertAt(value T, pos int) bool
 
 	// DeleteAt removes the value at the specified position.
-	// Returns true if successful, false if position is invalid.
+	// Returns true if successful, false if the position is invalid.
 	DeleteAt(pos int) bool
 
 	// Get retrieves the value at the specified position.
-	// Returns the value and true if successful, zero value and false if position is invalid.
+	// Returns the value and true if successful, zero value and false if the position is invalid.
 	Get(pos int) (T, bool)
 
 	// Len returns the number of elements in the list.

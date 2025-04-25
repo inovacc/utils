@@ -1,5 +1,7 @@
 package ds
 
+import "errors"
+
 type RingBuffer[T any] interface {
 	Push(value T)
 	Pop() (T, bool)
@@ -14,8 +16,11 @@ type ringBuffer[T any] struct {
 	size, limit int
 }
 
-func NewRingBuffer[T any](cap int) *ringBuffer[T] {
-	return &ringBuffer[T]{data: make([]T, cap), limit: cap}
+func NewRingBuffer[T any](cap int) (*ringBuffer[T], error) {
+	if cap <= 0 {
+		return nil, errors.New("ring buffer capacity must be positive")
+	}
+	return &ringBuffer[T]{data: make([]T, cap), limit: cap}, nil
 }
 
 func (r *ringBuffer[T]) Push(val T) {
