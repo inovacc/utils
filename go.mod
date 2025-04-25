@@ -5,6 +5,7 @@ go 1.24
 require (
 	gitee.com/dromara/carbon/v2 v2.6.2
 	github.com/andybalholm/brotli v1.1.1
+	github.com/brianvoe/gofakeit/v7 v7.2.1
 	github.com/golang/snappy v1.0.0
 	github.com/google/uuid v1.6.0
 	github.com/inovacc/base58 v1.0.1
