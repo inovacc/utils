@@ -1,11 +1,9 @@
 package card
 
 import (
-	"fmt"
 	"math/rand"
 	"strconv"
 	"strings"
-	"time"
 )
 
 type Card struct {
@@ -15,61 +13,15 @@ type Card struct {
 	ExpiryYear     int
 	CVV            string
 	Brand          string
-	IssueDate      time.Time
+	IssueDate      string
 }
 
-type CardDetails struct {
+type Details struct {
 	Prefix string
 	Length int
 }
 
-// CardSpec defines the specification for a card type
-type CardSpec struct {
-	prefixes []string
-	lengths  []int
-}
-
-// Card specifications based on provided information
-var cardSpecs = map[string]CardSpec{
-	"Visa": {
-		prefixes: []string{"4"},
-		lengths:  []int{13, 16, 19},
-	},
-	"Mastercard": {
-		prefixes: generatePrefixRange(51, 55, append(generatePrefixRange(2221, 2720))),
-		lengths:  []int{16},
-	},
-	"American Express": {
-		prefixes: []string{"34", "37"},
-		lengths:  []int{15},
-	},
-	"Discover": {
-		prefixes: append(
-			append(
-				[]string{"6011"},
-				generatePrefixRange(622126, 622925)...,
-			),
-			append(
-				generatePrefixRange(644, 649),
-				"65",
-			)...,
-		),
-		lengths: []int{16},
-	},
-	"Diners Club": {
-		prefixes: append(
-			generatePrefixRange(300, 305),
-			[]string{"36", "38"}...,
-		),
-		lengths: []int{14},
-	},
-	"JCB": {
-		prefixes: generatePrefixRange(3528, 3589),
-		lengths:  []int{16, 17, 18, 19},
-	},
-}
-
-var creditCardSpecs = map[string][]CardDetails{
+var creditCardSpecs = map[string][]Details{
 	"Visa": {{Prefix: "4", Length: 16}},
 	"Mastercard": {
 		{Prefix: "51", Length: 16},
@@ -88,7 +40,7 @@ var creditCardSpecs = map[string][]CardDetails{
 	},
 }
 
-var debitCardSpecs = map[string][]CardDetails{
+var debitCardSpecs = map[string][]Details{
 	"Visa Electron": {
 		{Prefix: "4026", Length: 16},
 		{Prefix: "417500", Length: 16},
@@ -116,107 +68,17 @@ var debitCardSpecs = map[string][]CardDetails{
 	},
 }
 
-// Helper function to generate prefix ranges
-func generatePrefixRange(start, end int, additional ...string) []string {
-	var prefixes []string
-	for i := start; i <= end; i++ {
-		prefixes = append(prefixes, fmt.Sprintf("%d", i))
+func generateNumber(prefix string, length int) string {
+	remainingLength := length - len(prefix) - 1
+	number := prefix
+	for i := 0; i < remainingLength; i++ {
+		number += strconv.Itoa(rand.Intn(10))
 	}
-	return append(prefixes, additional...)
+	checkDigit := generateLuhnCheckDigit(number)
+	return number + strconv.Itoa(checkDigit)
 }
 
-func GenerateCard() BankCard {
-	rand.Seed(time.Now().UnixNano())
-
-	// Get random card type
-	types := make([]string, 0, len(cardSpecs))
-	for cardType := range cardSpecs {
-		types = append(types, cardType)
-	}
-	cardType := types[rand.Intn(len(types))]
-
-	// Generate card details
-	number := generateValidCardNumber(cardType)
-
-	// Generate expiry date (current year + 2-5 years)
-	currentYear := time.Now().Year() % 100
-	year := currentYear + rand.Intn(4) + 2
-	month := rand.Intn(12) + 1
-	expiry := fmt.Sprintf("%02d/%02d", month, year)
-
-	// Generate CVV (4 digits for Amex, 3 for others)
-	cvvLength := 3
-	if cardType == "American Express" {
-		cvvLength = 4
-	}
-	cvv := generateRandomDigits(cvvLength)
-
-	return BankCard{
-		Number: number,
-		Type:   cardType,
-		Name:   "SAMPLE CARD",
-		Expiry: expiry,
-		CVV:    cvv,
-	}
-}
-
-func generateValidCardNumber(cardType string) string {
-	spec := cardSpecs[cardType]
-
-	// Select random prefix and length
-	prefix := spec.prefixes[rand.Intn(len(spec.prefixes))]
-	length := spec.lengths[rand.Intn(len(spec.lengths))]
-
-	// Generate random digits for remaining length
-	remainingLength := length - len(prefix) - 1 // -1 for check digit
-	number := prefix + generateRandomDigits(remainingLength)
-
-	// Calculate and append check digit
-	checkDigit := generateCheckDigit(number)
-	finalNumber := number + strconv.Itoa(checkDigit)
-
-	return formatCardNumber(finalNumber, cardType)
-}
-
-func generateRandomDigits(length int) string {
-	digits := make([]byte, length)
-	for i := 0; i < length; i++ {
-		digits[i] = byte(rand.Intn(10)) + '0'
-	}
-	return string(digits)
-}
-
-func formatCardNumber(number string, cardType string) string {
-	var parts []string
-	switch cardType {
-	case "American Express":
-		// Format: XXXX XXXXXX XXXXX
-		parts = []string{
-			number[:4],
-			number[4:10],
-			number[10:],
-		}
-	case "Diners Club":
-		// Format: XXXX XXXXXX XX
-		parts = []string{
-			number[:4],
-			number[4:10],
-			number[10:],
-		}
-	default:
-		// Standard format: XXXX XXXX XXXX XXXX (or longer for 19-digit cards)
-		for i := 0; i < len(number); i += 4 {
-			end := i + 4
-			if end > len(number) {
-				end = len(number)
-			}
-			parts = append(parts, number[i:end])
-		}
-	}
-	return strings.Join(parts, " ")
-}
-
-func generateCheckDigit(partial string) int {
+func generateLuhnCheckDigit(partial string) int {
 	sum := 0
 	double := len(partial)%2 == 0
 
@@ -235,9 +97,28 @@ func generateCheckDigit(partial string) int {
 	return (10 - (sum % 10)) % 10
 }
 
-func cardBrand(number string) string {
-	number = strings.ReplaceAll(number, " ", "") // Remove spaces
+func generateCVV(length int) string {
+	var cvv strings.Builder
+	for i := 0; i < length; i++ {
+		cvv.WriteString(strconv.Itoa(rand.Intn(10)))
+	}
+	return cvv.String()
+}
 
+func formatNumber(number string) string {
+	var parts []string
+	for i := 0; i < len(number); i += 4 {
+		end := i + 4
+		if end > len(number) {
+			end = len(number)
+		}
+		parts = append(parts, number[i:end])
+	}
+	return strings.Join(parts, " ")
+}
+
+func cardBrand(number string) string {
+	number = strings.ReplaceAll(number, " ", "")
 	switch {
 	case strings.HasPrefix(number, "4"):
 		return "Visa"
@@ -252,18 +133,6 @@ func cardBrand(number string) string {
 	case strings.HasPrefix(number, "30"), strings.HasPrefix(number, "36"), strings.HasPrefix(number, "38"):
 		return "Diners Club"
 	default:
-		return "Unknown Brand"
-	}
-}
-
-func init() {
-	// Card types with their prefixes and lengths
-	var cardTypes = map[string]struct {
-		prefixes []string
-		length   int
-	}{
-		"VISA":       {prefixes: []string{"4"}, length: 16},
-		"MasterCard": {prefixes: []string{"51", "52", "53", "54", "55"}, length: 16},
-		"Amex":       {prefixes: []string{"34", "37"}, length: 15},
+		return "Unknown"
 	}
 }

@@ -1,38 +1,40 @@
 package card
 
 import (
+	"fmt"
 	"math/rand"
+	"strings"
 	"time"
+
+	"github.com/brianvoe/gofakeit/v7"
 )
 
-func GenerateDebitCard() Card {
+func GenerateDebitCard(actual bool) Card {
 	now := time.Now()
-
-	// Select random card brand
+	if !actual {
+		now = gofakeit.Date()
+	}
 	brands := []string{"Visa Electron", "Maestro", "Visa Debit", "Mastercard Debit"}
 	brand := brands[rand.Intn(len(brands))]
 
-	// Get random spec for the selected brand
 	specs := debitCardSpecs[brand]
 	spec := specs[rand.Intn(len(specs))]
 
-	// Generate card number
 	number := generateNumber(spec.Prefix, spec.Length)
-
-	// Generate expiry date (2-4 years from now, as debit cards typically have shorter validity)
 	expiryYear := now.Year() + rand.Intn(3) + 2
 	expiryMonth := rand.Intn(12) + 1
 
-	// Generate CVV (always 3 digits for debit cards)
 	cvv := generateCVV(3)
+
+	person := gofakeit.Person()
 
 	return Card{
 		Number:         formatNumber(number),
-		CardholderName: "SAMPLE CARD",
+		CardholderName: strings.ToUpper(fmt.Sprintf("%s %s", person.FirstName, person.LastName)),
 		ExpiryMonth:    expiryMonth,
 		ExpiryYear:     expiryYear,
 		CVV:            cvv,
 		Brand:          brand,
-		IssueDate:      now,
+		IssueDate:      now.Format("01/2006"),
 	}
 }
