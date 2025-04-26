@@ -3,14 +3,18 @@ module github.com/inovacc/utils/v2
 go 1.24
 
 require (
-	gitee.com/dromara/carbon/v2 v2.6.2
+	gitee.com/dromara/carbon/v2 v2.6.3
+	github.com/AlecAivazis/survey/v2 v2.3.7
 	github.com/andybalholm/brotli v1.1.1
 	github.com/brianvoe/gofakeit/v7 v7.2.1
+	github.com/choria-io/fisk v0.7.0
+	github.com/dustin/go-humanize v1.0.1
 	github.com/golang/snappy v1.0.0
 	github.com/google/uuid v1.6.0
 	github.com/inovacc/base58 v1.0.1
 	github.com/inovacc/gopickle v1.0.0
 	github.com/inovacc/ksuid v1.0.0
+	github.com/jedib0t/go-pretty/v6 v6.6.7
 	github.com/klauspost/compress v1.18.0
 	github.com/pierrec/lz4/v4 v4.1.22
 	github.com/spf13/afero v1.14.0
@@ -20,9 +24,15 @@ require (
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/dromara/carbon/v2 v2.6.2 // indirect
+	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
+	github.com/mattn/go-colorable v0.1.2 // indirect
+	github.com/mattn/go-isatty v0.0.8 // indirect
+	github.com/mattn/go-runewidth v0.0.16 // indirect
+	github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/rivo/uniseg v0.4.7 // indirect
 	golang.org/x/sys v0.32.0 // indirect
+	golang.org/x/term v0.31.0 // indirect
 	golang.org/x/text v0.24.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

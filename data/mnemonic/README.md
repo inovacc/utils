@@ -7,13 +7,13 @@ This is a simple command line tool and module, to generate a mnemonic sentence. 
 # Go install
 
 ```bash
-go install github.com/inovacc/mnemonic@latest
+go install github.com/inovacc/utils/data/mnemonic@latest
 ```
 
 # Import in code
 
 ```go
-import "github.com/inovacc/mnemonic"
+import "github.com/inovacc/utils/data/mnemonic"
 
 func main() {
     // Generate a mnemonic in English with 12 words
