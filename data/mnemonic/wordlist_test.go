@@ -12,8 +12,6 @@ func TestRandomWord(t *testing.T) {
 	if len(word) < 3 {
 		t.Errorf("RandomWord() = %v; want a word with at least 3 characters", word)
 	}
-
-	t.Logf("RandomWord() = %v", word)
 }
 
 func TestGenerateMnemonic(t *testing.T) {
@@ -22,6 +20,4 @@ func TestGenerateMnemonic(t *testing.T) {
 	if len(mnemonic) == 0 {
 		t.Errorf("GenerateMnemonic() = %v; want a mnemonic", mnemonic)
 	}
-
-	t.Logf("GenerateMnemonic() = %v", mnemonic)
 }
