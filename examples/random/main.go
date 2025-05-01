@@ -16,7 +16,8 @@ func main() {
 		password.WithLower(),
 		password.WithUpper(),
 	)
-	fmt.Println("Strong Password:", randPass)
+	pass, _ := randPass.Generate()
+	fmt.Println("Strong Password:", pass)
 
 	randNum, _ := random.RandomInt(1, 100)
 	fmt.Println("Random Number:", randNum)
