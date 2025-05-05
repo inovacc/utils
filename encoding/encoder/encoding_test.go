@@ -7,6 +7,20 @@ import (
 	"github.com/inovacc/utils/v2/random/random"
 )
 
+func TestBase02Encode(t *testing.T) {
+	testEncoding := NewEncoding(Base02)
+
+	str := "hello world"
+	encoded, err := testEncoding.EncodeStr(str)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if encoded != "0110100001100101011011000110110001101111001000000111011101101111011100100110110001100100" {
+		t.Fatalf("Expected %s, got %s", "0110100001100101011011000110110001101111001000000111011101101111011100100110110001100100", encoded)
+	}
+}
+
 func TestBase58Encode(t *testing.T) {
 	testEncoding := NewEncoding(Base58)
 

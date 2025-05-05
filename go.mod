@@ -9,6 +9,7 @@ require (
 	github.com/brianvoe/gofakeit/v7 v7.2.1
 	github.com/choria-io/fisk v0.7.0
 	github.com/disintegration/imaging v1.6.2
+	github.com/divan/txqr v0.0.0-20190110104519-d92929c20d82
 	github.com/dustin/go-humanize v1.0.1
 	github.com/fogleman/gg v1.3.0
 	github.com/golang/snappy v1.0.0
@@ -19,6 +20,7 @@ require (
 	github.com/jedib0t/go-pretty/v6 v6.6.7
 	github.com/klauspost/compress v1.18.0
 	github.com/pierrec/lz4/v4 v4.1.22
+	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
 	github.com/spf13/afero v1.14.0
 	github.com/stretchr/testify v1.10.0
 	golang.org/x/crypto v0.37.0
@@ -27,7 +29,9 @@ require (
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
+	github.com/google/gofountain v0.0.0-20160820054803-4928733085e9 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
+	github.com/makiuchi-d/gozxing v0.0.0-20181111004219-a01698524e72 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect

@@ -4,7 +4,8 @@ package encoder
 type BaseType int
 
 const (
-	Base58 BaseType = iota // Base58 encoding (commonly used in Bitcoin addresses)
+	Base02 BaseType = iota // Base02 encoding (compact, URL-safe)
+	Base58                 // Base58 encoding (commonly used in Bitcoin addresses)
 	Base62                 // Base62 encoding (compact, URL-safe)
 	Base64                 // Base64 encoding (standard in web/data transfer)
 )
@@ -23,6 +24,8 @@ type Encoding interface {
 // It supports Base58, Base62, and Base64 encodings. Returns nil if the base is unsupported.
 func NewEncoding(base BaseType) Encoding {
 	switch base {
+	case Base02:
+		return newBase02Encoding()
 	case Base58:
 		return newBase58Encoding()
 	case Base62:
