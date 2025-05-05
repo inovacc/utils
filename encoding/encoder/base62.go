@@ -10,23 +10,46 @@ var (
 	base62Alphabet = []byte("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
 )
 
-type base62Encoding struct{}
+type base62Encoding struct {
+	limit int
+}
 
 func newBase62Encoding() *base62Encoding {
 	return &base62Encoding{}
 }
 
-func (e *base62Encoding) EncodeStr(s string) (string, error) {
-	data, err := e.Encode([]byte(s))
+func (b *base62Encoding) SetLimit(limit int) {
+	b.limit = limit
+}
+
+func (b *base62Encoding) EncodeStr(s string) (string, error) {
+	data, err := b.Encode([]byte(s))
+	if err != nil {
+		return "", err
+	}
+
+	encoded := string(data)
+	if b.limit > 0 {
+		encoded = wrapString(encoded, b.limit)
+	}
+
+	return encoded, err
+}
+
+func (b *base62Encoding) DecodeStr(s string) (string, error) {
+	decoded := s
+	if b.limit > 0 {
+		decoded = unwrapString(decoded)
+	}
+
+	data, err := b.Decode([]byte(decoded))
+	if err != nil {
+		return "", err
+	}
 	return string(data), err
 }
 
-func (e *base62Encoding) DecodeStr(s string) (string, error) {
-	data, err := e.Decode([]byte(s))
-	return string(data), err
-}
-
-func (e *base62Encoding) Encode(data []byte) ([]byte, error) {
+func (b *base62Encoding) Encode(data []byte) ([]byte, error) {
 	num := new(big.Int).SetBytes(data)
 	base := big.NewInt(62)
 	zero := big.NewInt(0)
@@ -40,7 +63,7 @@ func (e *base62Encoding) Encode(data []byte) ([]byte, error) {
 	return encoded, nil
 }
 
-func (e *base62Encoding) Decode(input []byte) ([]byte, error) {
+func (b *base62Encoding) Decode(input []byte) ([]byte, error) {
 	base := big.NewInt(62)
 	result := big.NewInt(0)
 

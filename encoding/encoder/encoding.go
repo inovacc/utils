@@ -16,10 +16,11 @@ type Encoding interface {
 	EncodeStr(string) (string, error) // Encode input string to encoded string
 	Decode([]byte) ([]byte, error)    // Decode encoded bytes to original bytes
 	DecodeStr(string) (string, error) // Decode encoded string to original string
+	SetLimit(int)                     // Set the encoding to be limit (i.e. using newlines with a size limit)
 }
 
 // NewEncoding returns an Encoding implementation based on the selected BaseType.
-// It supports Base58, Base62, and Base64 encodings. Returns nil if base is unsupported.
+// It supports Base58, Base62, and Base64 encodings. Returns nil if the base is unsupported.
 func NewEncoding(base BaseType) Encoding {
 	switch base {
 	case Base58:
@@ -27,7 +28,7 @@ func NewEncoding(base BaseType) Encoding {
 	case Base62:
 		return newBase62Encoding()
 	case Base64:
-		return &base64Encoding{}
+		return newBase64Encoding()
 	default:
 		return nil
 	}

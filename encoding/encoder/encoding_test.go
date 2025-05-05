@@ -3,6 +3,8 @@ package encoder
 import (
 	"log"
 	"testing"
+
+	"github.com/inovacc/utils/v2/random/random"
 )
 
 func TestBase58Encode(t *testing.T) {
@@ -109,5 +111,60 @@ func TestBase64Decode(t *testing.T) {
 
 	if string(decoded) != string(data) {
 		t.Fatalf("Decoded string does not match original: got %s, want %s", decoded, data)
+	}
+}
+
+func TestEncodeDecodeStrPortable(t *testing.T) {
+	str := random.RandomString(5000)
+
+	testEncoding := NewEncoding(Base64)
+	testEncoding.SetLimit(100)
+
+	encoded, err := testEncoding.EncodeStr(str)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	decoded, err := testEncoding.DecodeStr(encoded)
+	if err != nil {
+		t.Fatalf("Error decoding string: %v", err)
+	}
+
+	if decoded != str {
+		t.Fatalf("Decoded string does not match original: got %s, want %s", decoded, str)
+	}
+
+	testEncoding = NewEncoding(Base62)
+	testEncoding.SetLimit(100)
+
+	encoded, err = testEncoding.EncodeStr(str)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	decoded, err = testEncoding.DecodeStr(encoded)
+	if err != nil {
+		t.Fatalf("Error decoding string: %v", err)
+	}
+
+	if decoded != str {
+		t.Fatalf("Decoded string does not match original: got %s, want %s", decoded, str)
+	}
+
+	testEncoding = NewEncoding(Base58)
+	testEncoding.SetLimit(100)
+
+	encoded, err = testEncoding.EncodeStr(str)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	decoded, err = testEncoding.DecodeStr(encoded)
+	if err != nil {
+		t.Fatalf("Error decoding string: %v", err)
+	}
+
+	if decoded != str {
+		t.Fatalf("Decoded string does not match original: got %s, want %s", decoded, str)
 	}
 }

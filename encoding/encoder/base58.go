@@ -27,20 +27,42 @@ func newAlphabet(chars string) *Alphabet {
 
 type base58Encoding struct {
 	alphabet *Alphabet
-}
-
-func (b *base58Encoding) EncodeStr(s string) (string, error) {
-	data, err := b.Encode([]byte(s))
-	return string(data), err
-}
-
-func (b *base58Encoding) DecodeStr(s string) (string, error) {
-	data, err := b.Decode([]byte(s))
-	return string(data), err
+	limit    int
 }
 
 func newBase58Encoding() *base58Encoding {
 	return &base58Encoding{alphabet: newAlphabet(alphabetString)}
+}
+
+func (b *base58Encoding) SetLimit(limit int) {
+	b.limit = limit
+}
+
+func (b *base58Encoding) EncodeStr(s string) (string, error) {
+	data, err := b.Encode([]byte(s))
+	if err != nil {
+		return "", err
+	}
+
+	encoded := string(data)
+	if b.limit > 0 {
+		encoded = wrapString(encoded, b.limit)
+	}
+
+	return encoded, err
+}
+
+func (b *base58Encoding) DecodeStr(s string) (string, error) {
+	decoded := s
+	if b.limit > 0 {
+		decoded = unwrapString(decoded)
+	}
+
+	data, err := b.Decode([]byte(decoded))
+	if err != nil {
+		return "", err
+	}
+	return string(data), err
 }
 
 func (b *base58Encoding) Encode(data []byte) ([]byte, error) {
