@@ -312,12 +312,7 @@ func (g *Glitch) extractBinaryString(imagesPath string) (string, error) {
 		Date: timestamp,
 		Hash: hash,
 	}
-	fmt.Printf("Extracted metadata: %+v\n", meta)
-
-	if totalFrames != uint32(len(files)) {
-		return "", fmt.Errorf("frame count mismatch: metadata says %d, found %d", totalFrames, len(files))
-	}
-	fmt.Printf("Detected total frames: %d\n", totalFrames)
+	fmt.Printf("Extracted metadata: %+v\nDetected total frames: %d\n", meta, totalFrames)
 
 	var buf bytes.Buffer
 	for _, file := range files {
