@@ -16,8 +16,8 @@ func TestGlitchEncodeDecode(t *testing.T) {
 	testOutputDir := "testdata/frames"
 	testReconstructed := "testdata/reconstructed/gocv-0.41.0.zip"
 
-	defer os.RemoveAll(testOutputDir)
-	defer os.RemoveAll(testReconstructed)
+	// defer os.RemoveAll(testOutputDir)
+	// defer os.RemoveAll(testReconstructed)
 
 	// Encode a file to images
 	if err := g.EncodeFileToImages(testInput, testOutputDir); err != nil {

@@ -178,7 +178,7 @@ func (g *Glitch) worker(i int, binaryStr, outputDir string, pixelsPerImage int, 
 		end = len(binaryStr)
 	}
 	subStr := binaryStr[start:end]
-	img := image.NewRGBA(image.Rect(0, 0, width, height))
+	img := image.NewGray(image.Rect(0, 0, width, height))
 
 	idx := 0
 	for y := 0; y < height; y += pixelSize {
