@@ -20,15 +20,15 @@ func TestGlitchEncodeDecode(t *testing.T) {
 	defer os.RemoveAll(testReconstructed)
 
 	// Encode a file to images
-	if err := g.BlobToImages(testInput, testOutputDir); err != nil {
-		t.Fatalf("BlobToImages failed: %v", err)
+	if err := g.EncodeFileToImages(testInput, testOutputDir); err != nil {
+		t.Fatalf("EncodeFileToImages failed: %v", err)
 	}
 
 	// Decode images back to file
 	pattern := filepath.Join(testOutputDir, "frame_*.png")
-	meta, err := g.ImagesToBlob(pattern, testReconstructed)
+	meta, err := g.DecodeImagesToFile(pattern, testReconstructed)
 	if err != nil {
-		t.Fatalf("ImagesToBlob failed: %v", err)
+		t.Fatalf("DecodeImagesToFile failed: %v", err)
 	}
 
 	// Validate content

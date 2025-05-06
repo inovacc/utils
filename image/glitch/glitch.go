@@ -43,8 +43,8 @@ func NewGlitch() *Glitch {
 	}
 }
 
-func (g *Glitch) ImagesToBlob(imagesPath, outputDir string) (*FileMetadata, error) {
-	if err := ensureDir(outputDir); err != nil {
+func (g *Glitch) DecodeImagesToFile(imagesPath, outputDir string) (*FileMetadata, error) {
+	if err := g.ensureDir(outputDir); err != nil {
 		return nil, err
 	}
 
@@ -73,7 +73,7 @@ func (g *Glitch) ImagesToBlob(imagesPath, outputDir string) (*FileMetadata, erro
 	return meta, nil
 }
 
-func (g *Glitch) BlobToImages(filename, outputDir string) error {
+func (g *Glitch) EncodeFileToImages(filename, outputDir string) error {
 	file, err := os.Open(filename)
 	if err != nil {
 		return err
@@ -214,7 +214,7 @@ func (g *Glitch) worker(i int, binaryStr, outputDir string, pixelsPerImage int, 
 	}
 }
 
-func ensureDir(path string) error {
+func (g *Glitch) ensureDir(path string) error {
 	if _, err := os.Stat(path); err != nil {
 		return os.MkdirAll(path, 0755)
 	}
