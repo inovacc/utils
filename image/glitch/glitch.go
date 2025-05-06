@@ -253,7 +253,11 @@ func (g *Glitch) extractBinaryString(imagesPath string) (string, error) {
 	for k := 0; k < 4; k++ {
 		frameCountBytes[k] = grayImg.GrayAt(k, 0).Y
 	}
+
 	totalFrames := binary.BigEndian.Uint32(frameCountBytes[:])
+	if totalFrames != uint32(len(files)) {
+		return "", fmt.Errorf("frame count mismatch: metadata says %d, found %d", totalFrames, len(files))
+	}
 	fmt.Printf("Detected total frames: %d\n", totalFrames)
 
 	var buf bytes.Buffer
