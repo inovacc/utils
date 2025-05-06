@@ -14,24 +14,25 @@ func TestGlitchEncodeDecode(t *testing.T) {
 	// Setup test directories and files
 	testInput := "/home/dyam/Downloads/gocv-0.41.0.zip"
 	testOutputDir := "testdata/frames"
-	testReconstructed := "testdata/reconstructed.txt"
+	testReconstructed := "testdata/reconstructed/gocv-0.41.0.zip"
 
 	defer os.RemoveAll(testOutputDir)
-	defer os.Remove(testReconstructed)
+	defer os.RemoveAll(testReconstructed)
 
 	// Encode a file to images
-	if err := g.BlobToImagesFromReader(testInput, testOutputDir); err != nil {
+	if err := g.BlobToImages(testInput, testOutputDir); err != nil {
 		t.Fatalf("BlobToImages failed: %v", err)
 	}
 
 	// Decode images back to file
 	pattern := filepath.Join(testOutputDir, "frame_*.png")
-	if err := g.ImagesToBlob(pattern, testReconstructed); err != nil {
+	meta, err := g.ImagesToBlob(pattern, testReconstructed)
+	if err != nil {
 		t.Fatalf("ImagesToBlob failed: %v", err)
 	}
 
 	// Validate content
-	got, err := os.ReadFile(testReconstructed)
+	got, err := os.ReadFile(filepath.Join(testReconstructed, meta.Name))
 	if err != nil {
 		t.Fatalf("Failed to read reconstructed file: %v", err)
 	}
