@@ -2,15 +2,18 @@ package glitch
 
 import (
 	"bytes"
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"image"
 	"image/color"
 	"image/png"
+	"io"
 	"math"
 	"os"
 	"path/filepath"
 	"sort"
+	"sync"
 
 	"github.com/inovacc/utils/v2/encoding/compression"
 )
@@ -42,8 +45,14 @@ func (g *Glitch) BlobToImages(filePath, outputDir string) error {
 		return err
 	}
 
+	// Encode the length of compressed data in bits (uint32)
+	bitLen := uint32(len(compressed) * 8)
+	lenBuf := make([]byte, 4)
+	binary.BigEndian.PutUint32(lenBuf, bitLen)
+	prefixed := append(lenBuf, compressed...)
+
 	var buf bytes.Buffer
-	for _, b := range compressed {
+	for _, b := range prefixed {
 		buf.WriteString(fmt.Sprintf("%08b", b))
 	}
 	binaryStr := buf.String()
@@ -128,8 +137,24 @@ func (g *Glitch) ImagesToBlob(imagesPath string, outputPath string) error {
 	}
 	binaryStr := buf.String()
 
+	if len(binaryStr) < 32 {
+		return errors.New("corrupted input: too short to contain length header")
+	}
+	lengthBits := binaryStr[:32]
+	var lengthBytes byte
+	lengthData := make([]byte, 4)
+	for i := 0; i < 4; i++ {
+		slice := lengthBits[i*8 : (i+1)*8]
+		if _, err := fmt.Sscanf(slice, "%08b", &lengthBytes); err != nil {
+			return fmt.Errorf("invalid length prefix: %w", err)
+		}
+		lengthData[i] = lengthBytes
+	}
+	bitLen := binary.BigEndian.Uint32(lengthData)
+
+	binaryStr = binaryStr[32 : 32+bitLen]
 	if len(binaryStr)%8 != 0 {
-		binaryStr = binaryStr[:len(binaryStr)-(len(binaryStr)%8)] // trim padding
+		return errors.New("binary length not multiple of 8")
 	}
 
 	data := make([]byte, len(binaryStr)/8)
@@ -148,6 +173,105 @@ func (g *Glitch) ImagesToBlob(imagesPath string, outputPath string) error {
 	}
 
 	return os.WriteFile(outputPath, decompressed, 0644)
+}
+
+func (g *Glitch) BlobToImagesFromReader(filename string, outputDir string) error {
+	file, err := os.Open(filename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	data, err := io.ReadAll(file)
+	if err != nil {
+		return err
+	}
+	return g.BlobToImagesFromBuffer(data, outputDir)
+}
+
+func (g *Glitch) BlobToImagesFromBuffer(data []byte, outputDir string) error {
+	compressed, err := g.comp.Compress(data)
+	if err != nil {
+		return err
+	}
+
+	bitLen := uint32(len(compressed) * 8)
+	lenBuf := make([]byte, 4)
+	binary.BigEndian.PutUint32(lenBuf, bitLen)
+	prefixed := append(lenBuf, compressed...)
+
+	var buf bytes.Buffer
+	for _, b := range prefixed {
+		buf.WriteString(fmt.Sprintf("%08b", b))
+	}
+	binaryStr := buf.String()
+
+	pixelsPerImage := (width / pixelSize) * (height / pixelSize)
+	numImages := int(math.Ceil(float64(len(binaryStr)) / float64(pixelsPerImage)))
+
+	if err := os.MkdirAll(outputDir, 0755); err != nil {
+		return err
+	}
+
+	var wg sync.WaitGroup
+	errCh := make(chan error, numImages)
+
+	for i := 0; i < numImages; i++ {
+		i := i // capture loop variable
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+
+			start := i * pixelsPerImage
+			end := start + pixelsPerImage
+			if end > len(binaryStr) {
+				end = len(binaryStr)
+			}
+			subStr := binaryStr[start:end]
+			img := image.NewRGBA(image.Rect(0, 0, width, height))
+
+			idx := 0
+			for y := 0; y < height; y += pixelSize {
+				for x := 0; x < width; x += pixelSize {
+					if idx >= len(subStr) {
+						break
+					}
+					c := color.White
+					if subStr[idx] == '1' {
+						c = color.Black
+					}
+					for dy := 0; dy < pixelSize; dy++ {
+						for dx := 0; dx < pixelSize; dx++ {
+							img.Set(x+dx, y+dy, c)
+						}
+					}
+					idx++
+				}
+			}
+
+			outPath := filepath.Join(outputDir, fmt.Sprintf("frame_%04d.png", i))
+			outFile, err := os.Create(outPath)
+			if err != nil {
+				errCh <- err
+				return
+			}
+			err = png.Encode(outFile, img)
+			if cerr := outFile.Close(); cerr != nil && err == nil {
+				err = cerr
+			}
+			if err != nil {
+				errCh <- err
+			}
+		}()
+	}
+
+	wg.Wait()
+	close(errCh)
+
+	if len(errCh) > 0 {
+		return <-errCh
+	}
+	return nil
 }
 
 func (g *Glitch) safeOpen(file string) (image.Image, error) {

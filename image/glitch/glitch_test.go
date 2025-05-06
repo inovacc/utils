@@ -12,7 +12,7 @@ func TestGlitchEncodeDecode(t *testing.T) {
 	g := NewGlitch()
 
 	// Setup test directories and files
-	testInput := "/home/dyam/Downloads/presencial_app_fixed.zip"
+	testInput := "/home/dyam/Downloads/gocv-0.41.0.zip"
 	testOutputDir := "testdata/frames"
 	testReconstructed := "testdata/reconstructed.txt"
 
@@ -20,7 +20,7 @@ func TestGlitchEncodeDecode(t *testing.T) {
 	defer os.Remove(testReconstructed)
 
 	// Encode a file to images
-	if err := g.BlobToImages(testInput, testOutputDir); err != nil {
+	if err := g.BlobToImagesFromReader(testInput, testOutputDir); err != nil {
 		t.Fatalf("BlobToImages failed: %v", err)
 	}
 
