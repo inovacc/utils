@@ -137,9 +137,12 @@ func (g *Glitch) EncodeFileToImages(filename, outputDir string) error {
 	errCh := make(chan error, numImages)
 
 	for i := 0; i < numImages; i++ {
-		i := i
 		wg.Add(1)
-		go g.worker(i, binaryStr, outputDir, pixelsPerImage, numImages, errCh, &wg)
+		var metaRef *FileMetadata
+		if i == numImages-1 {
+			metaRef = &meta
+		}
+		go g.worker(i, binaryStr, outputDir, pixelsPerImage, numImages, errCh, &wg, metaRef)
 	}
 
 	wg.Wait()
@@ -169,7 +172,7 @@ func (g *Glitch) safeOpen(file string) (image.Image, error) {
 	return img, nil
 }
 
-func (g *Glitch) worker(i int, binaryStr, outputDir string, pixelsPerImage, numImages int, errCh chan error, wg *sync.WaitGroup) {
+func (g *Glitch) worker(i int, binaryStr, outputDir string, pixelsPerImage, numImages int, errCh chan error, wg *sync.WaitGroup, meta *FileMetadata) {
 	defer wg.Done()
 
 	start := i * pixelsPerImage
@@ -181,7 +184,30 @@ func (g *Glitch) worker(i int, binaryStr, outputDir string, pixelsPerImage, numI
 	img := image.NewGray(image.Rect(0, 0, width, height))
 
 	idx := 0
-	for y := 0; y < height; y += pixelSize {
+	startY := 0
+	if i == numImages-1 && meta != nil {
+		startY = pixelSize // skip metadata row
+	}
+	for y := startY; y < height; y += pixelSize {
+		if i == numImages-1 && meta != nil {
+			countBuf := make([]byte, 4)
+			binary.BigEndian.PutUint32(countBuf, uint32(numImages))
+			for k := 0; k < 4; k++ {
+				img.SetGray(k, 0, color.Gray{Y: countBuf[k]})
+			}
+
+			metaBuf := new(bytes.Buffer)
+			_ = binary.Write(metaBuf, binary.BigEndian, int32(len(meta.Name)))
+			metaBuf.WriteString(meta.Name)
+			_ = binary.Write(metaBuf, binary.BigEndian, meta.Date)
+			metaBuf.Write(meta.Hash[:])
+
+			metaBytes := metaBuf.Bytes()
+			for i, b := range metaBytes {
+				img.SetGray(i+4, 0, color.Gray{Y: b})
+			}
+		}
+
 		for x := 0; x < width; x += pixelSize {
 			if idx >= len(subStr) {
 				break
@@ -253,8 +279,41 @@ func (g *Glitch) extractBinaryString(imagesPath string) (string, error) {
 	for k := 0; k < 4; k++ {
 		frameCountBytes[k] = grayImg.GrayAt(k, 0).Y
 	}
-
 	totalFrames := binary.BigEndian.Uint32(frameCountBytes[:])
+
+	// Read metadata from next bytes in row
+	var nameLen int32
+	metaBuf := make([]byte, 4)
+	for i := 0; i < 4; i++ {
+		metaBuf[i] = grayImg.GrayAt(i+4, 0).Y
+	}
+	_ = binary.Read(bytes.NewReader(metaBuf), binary.BigEndian, &nameLen)
+
+	nameBytes := make([]byte, nameLen)
+	for i := int32(0); i < nameLen; i++ {
+		nameBytes[i] = grayImg.GrayAt(int(8+i), 0).Y
+	}
+	name := string(nameBytes)
+
+	timeBuf := make([]byte, 8)
+	for i := 0; i < 8; i++ {
+		timeBuf[i] = grayImg.GrayAt(int(8+nameLen)+i, 0).Y
+	}
+	var timestamp int64
+	_ = binary.Read(bytes.NewReader(timeBuf), binary.BigEndian, &timestamp)
+
+	hash := [32]byte{}
+	for i := 0; i < 32; i++ {
+		hash[i] = grayImg.GrayAt(int(8+nameLen+8)+i, 0).Y
+	}
+
+	meta := FileMetadata{
+		Name: name,
+		Date: timestamp,
+		Hash: hash,
+	}
+	fmt.Printf("Extracted metadata: %+v\n", meta)
+
 	if totalFrames != uint32(len(files)) {
 		return "", fmt.Errorf("frame count mismatch: metadata says %d, found %d", totalFrames, len(files))
 	}
@@ -266,7 +325,11 @@ func (g *Glitch) extractBinaryString(imagesPath string) (string, error) {
 		if err != nil {
 			return "", err
 		}
-		for y := 0; y < height; y += pixelSize {
+		startY := 0
+		if file == files[len(files)-1] {
+			startY = pixelSize // skip metadata row
+		}
+		for y := startY; y < height; y += pixelSize {
 			for x := 0; x < width; x += pixelSize {
 				r, g, b, _ := img.At(x, y).RGBA()
 				avg := (r + g + b) / 3
