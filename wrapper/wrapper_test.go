@@ -144,7 +144,7 @@ func TestWrapper(t *testing.T) {
 			// Compare original and unmarshalled results
 			result := newWrapper.Get()
 			if !reflect.DeepEqual(result, tt.input) {
-				t.Errorf("Data mismatch after marshal/unmarshal\ngot: %+v\nwant: %+v", result, tt.input)
+				t.Errorf("data mismatch after marshal/unmarshal\ngot: %+v\nwant: %+v", result, tt.input)
 			}
 		})
 	}
@@ -286,7 +286,7 @@ func TestEmptyWrapperWithSet(t *testing.T) {
 
 	// Compare the results
 	if !reflect.DeepEqual(verifyWrapper.Get(), testUser) {
-		t.Errorf("Data mismatch after Set() and marshal/unmarshal\ngot: %+v\nwant: %+v",
+		t.Errorf("data mismatch after Set() and marshal/unmarshal\ngot: %+v\nwant: %+v",
 			verifyWrapper.Get(), testUser)
 	}
 }

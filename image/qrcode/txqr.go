@@ -2,6 +2,7 @@ package qrcode
 
 import (
 	"bytes"
+	"encoding/hex"
 	"fmt"
 	"image"
 	"image/gif"
@@ -9,7 +10,6 @@ import (
 
 	"github.com/divan/txqr"
 	"github.com/divan/txqr/qr"
-	"github.com/inovacc/utils/v2/encoding/encoder"
 )
 
 // https://divan.dev/posts/animatedqr/
@@ -25,14 +25,32 @@ func NewTxQrcode() *TxQrcode {
 	return &TxQrcode{}
 }
 
-func (t *TxQrcode) Generate(data string, imgSize int, fps, size int, lvl qr.RecoveryLevel) error {
-	newEncoder := encoder.NewEncoding(encoder.Base64)
-	str, err := newEncoder.DecodeStr(data)
-	if err != nil {
-		return err
+func (t *TxQrcode) GenerateFrames(frames []string, imgSize, fps, size int, lvl qr.RecoveryLevel) error {
+	out := &gif.GIF{
+		Image: make([]*image.Paletted, len(frames)),
+		Delay: make([]int, len(frames)),
 	}
 
-	chunks, err := txqr.NewEncoder(size).Encode(str)
+	for i, hexData := range frames {
+		qrImg, err := qr.Encode(hexData, imgSize, lvl)
+		if err != nil {
+			return fmt.Errorf("QR encode: %v", err)
+		}
+		out.Image[i] = qrImg.(*image.Paletted)
+		out.Delay[i] = t.fpsToGifDelay(fps)
+	}
+
+	var buf bytes.Buffer
+	if err := gif.EncodeAll(&buf, out); err != nil {
+		return fmt.Errorf("gif create: %v", err)
+	}
+
+	t.data = buf.Bytes()
+	return nil
+}
+
+func (t *TxQrcode) Generate(data string, imgSize int, fps, size int, lvl qr.RecoveryLevel) error {
+	chunks, err := txqr.NewEncoder(size).Encode(hex.EncodeToString([]byte(data)))
 	if err != nil {
 		return fmt.Errorf("encode: %v", err)
 	}
@@ -47,6 +65,7 @@ func (t *TxQrcode) Generate(data string, imgSize int, fps, size int, lvl qr.Reco
 		if err != nil {
 			return fmt.Errorf("QR encode: %v", err)
 		}
+
 		out.Image[i] = encode.(*image.Paletted)
 		out.Delay[i] = t.fpsToGifDelay(fps)
 	}

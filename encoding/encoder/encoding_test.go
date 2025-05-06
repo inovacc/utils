@@ -2,6 +2,7 @@ package encoder
 
 import (
 	"log"
+	"os"
 	"testing"
 
 	"github.com/inovacc/utils/v2/random/random"
@@ -177,6 +178,27 @@ func TestEncodeDecodeStrPortable(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error decoding string: %v", err)
 	}
+
+	if decoded != str {
+		t.Fatalf("Decoded string does not match original: got %s, want %s", decoded, str)
+	}
+}
+
+func TestEncodeDecodeStrPortableFile(t *testing.T) {
+	data, err := os.ReadFile("testdata/file.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	testEncoding := NewEncoding(Base64)
+	testEncoding.SetLimit(180)
+
+	decoded, err := testEncoding.DecodeStr(string(data))
+	if err != nil {
+		t.Fatalf("Error decoding string: %v", err)
+	}
+
+	str := ""
 
 	if decoded != str {
 		t.Fatalf("Decoded string does not match original: got %s, want %s", decoded, str)
