@@ -1,6 +1,8 @@
 package glitch
 
 import (
+	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"testing"
@@ -54,4 +56,15 @@ func TestGlitchEncodeDecode(t *testing.T) {
 	if err := g.MakeVideo(testOutputDir, "testdata", false); err != nil {
 		t.Fatalf("MakeVideo failed: %v", err)
 	}
+
+	videoPath := "testdata/output.mkv"
+	tempFramesDir := "testdata/temp_frames"
+	outputDir := "testdata/decoded"
+
+	meta, err = g.ExtractFileFromVideo(videoPath, tempFramesDir, outputDir)
+	if err != nil {
+		log.Fatalf("Failed to extract file from video: %v", err)
+	}
+
+	fmt.Printf("Successfully extracted: %s\nCreated: %v\nHash: %x\n", meta.Name, meta.Date, meta.Hash)
 }

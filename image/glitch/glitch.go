@@ -453,3 +453,31 @@ func (g *Glitch) MakeVideo(imagesPath, outputDir string, compress bool) error {
 	fmt.Println("Video created:", outputFile)
 	return nil
 }
+
+func (g *Glitch) ExtractFramesFromVideo(videoPath, framesDir string) error {
+	if err := g.ensureDir(framesDir); err != nil {
+		return fmt.Errorf("failed to create frames directory: %w", err)
+	}
+
+	cmd := exec.Command("ffmpeg",
+		"-i", videoPath,
+		"-vsync", "0",
+		"-frame_pts", "1",
+		filepath.Join(framesDir, "frame_%04d.png"),
+	)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	fmt.Printf("Extracting frames from video: %s\n", cmd.String())
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("ffmpeg failed: %w", err)
+	}
+	return nil
+}
+
+func (g *Glitch) ExtractFileFromVideo(videoPath, tempDir, outputDir string) (*FileMetadata, error) {
+	if err := g.ExtractFramesFromVideo(videoPath, tempDir); err != nil {
+		return nil, err
+	}
+	return g.DecodeImagesToFile(filepath.Join(tempDir, "*.png"), outputDir)
+}
