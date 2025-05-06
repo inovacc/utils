@@ -50,4 +50,8 @@ func TestGlitchEncodeDecode(t *testing.T) {
 	if gotStr != sourceStr {
 		t.Fatal("not equal")
 	}
+
+	if err := g.MakeVideo(testOutputDir, "testdata"); err != nil {
+		t.Fatalf("MakeVideo failed: %v", err)
+	}
 }

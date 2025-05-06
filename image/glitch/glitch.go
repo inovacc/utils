@@ -12,6 +12,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sort"
 	"sync"
@@ -411,5 +412,43 @@ func (g *Glitch) validateHash(data []byte, expected [32]byte) error {
 	if actual != expected {
 		return fmt.Errorf("hash mismatch: file may be corrupted")
 	}
+	return nil
+}
+
+func (g *Glitch) MakeVideo(imagesPath, outputDir string) error {
+	const useAV1 = false // set to true for AV1 compression
+	outputFile := filepath.Join(outputDir, "output.mkv")
+
+	var cmd *exec.Cmd
+	if useAV1 {
+		cmd = exec.Command("ffmpeg",
+			"-framerate", "30",
+			"-pattern_type", "glob",
+			"-i", filepath.Join(imagesPath, "frame_*.png"),
+			"-c:v", "libaom-av1",
+			"-crf", "30",
+			"-b:v", "0",
+			outputFile,
+		)
+	} else {
+		cmd = exec.Command("ffmpeg",
+			"-framerate", "30",
+			"-pattern_type", "glob",
+			"-i", filepath.Join(imagesPath, "frame_*.png"),
+			"-c:v", "libx265",
+			"-crf", "28",
+			outputFile,
+		)
+	}
+
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	fmt.Println("Generating video...")
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("ffmpeg failed: %w", err)
+	}
+
+	fmt.Println("Video created:", outputFile)
 	return nil
 }
