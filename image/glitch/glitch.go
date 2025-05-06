@@ -139,7 +139,7 @@ func (g *Glitch) EncodeFileToImages(filename, outputDir string) error {
 	for i := 0; i < numImages; i++ {
 		i := i
 		wg.Add(1)
-		go g.worker(i, binaryStr, outputDir, pixelsPerImage, errCh, &wg)
+		go g.worker(i, binaryStr, outputDir, pixelsPerImage, numImages, errCh, &wg)
 	}
 
 	wg.Wait()
@@ -169,7 +169,7 @@ func (g *Glitch) safeOpen(file string) (image.Image, error) {
 	return img, nil
 }
 
-func (g *Glitch) worker(i int, binaryStr, outputDir string, pixelsPerImage int, errCh chan error, wg *sync.WaitGroup) {
+func (g *Glitch) worker(i int, binaryStr, outputDir string, pixelsPerImage, numImages int, errCh chan error, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	start := i * pixelsPerImage
@@ -205,6 +205,17 @@ func (g *Glitch) worker(i int, binaryStr, outputDir string, pixelsPerImage int, 
 		errCh <- err
 		return
 	}
+
+	if i == numImages-1 {
+		// Store numImages as 4 bytes in top-left 4 pixels
+		countBuf := make([]byte, 4)
+		binary.BigEndian.PutUint32(countBuf, uint32(numImages))
+
+		for k := 0; k < 4; k++ {
+			img.SetGray(k, 0, color.Gray{Y: countBuf[k]})
+		}
+	}
+
 	err = png.Encode(outFile, img)
 	if cerr := outFile.Close(); cerr != nil && err == nil {
 		err = cerr
@@ -227,6 +238,23 @@ func (g *Glitch) extractBinaryString(imagesPath string) (string, error) {
 		return "", errors.New("no image frames found")
 	}
 	sort.Strings(files)
+
+	lastImg, err := g.safeOpen(files[len(files)-1])
+	if err != nil {
+		return "", fmt.Errorf("failed to open last frame: %w", err)
+	}
+
+	grayImg, ok := lastImg.(*image.Gray)
+	if !ok {
+		return "", fmt.Errorf("expected grayscale image: %s", files[len(files)-1])
+	}
+
+	var frameCountBytes [4]byte
+	for k := 0; k < 4; k++ {
+		frameCountBytes[k] = grayImg.GrayAt(k, 0).Y
+	}
+	totalFrames := binary.BigEndian.Uint32(frameCountBytes[:])
+	fmt.Printf("Detected total frames: %d\n", totalFrames)
 
 	var buf bytes.Buffer
 	for _, file := range files {
