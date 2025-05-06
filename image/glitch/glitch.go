@@ -415,12 +415,11 @@ func (g *Glitch) validateHash(data []byte, expected [32]byte) error {
 	return nil
 }
 
-func (g *Glitch) MakeVideo(imagesPath, outputDir string) error {
-	const useAV1 = false // set to true for AV1 compression
+func (g *Glitch) MakeVideo(imagesPath, outputDir string, compress bool) error {
 	outputFile := filepath.Join(outputDir, "output.mkv")
 
 	var cmd *exec.Cmd
-	if useAV1 {
+	if compress {
 		cmd = exec.Command("ffmpeg",
 			"-framerate", "30",
 			"-pattern_type", "glob",
@@ -443,6 +442,8 @@ func (g *Glitch) MakeVideo(imagesPath, outputDir string) error {
 
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
+
+	fmt.Printf("command: %s\n", cmd.String())
 
 	fmt.Println("Generating video...")
 	if err := cmd.Run(); err != nil {
