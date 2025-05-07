@@ -12,6 +12,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/divan/txqr"
+	"github.com/divan/txqr/qr"
 	"github.com/inovacc/utils/v2/encoding/encoder/gob"
 	"github.com/inovacc/utils/v2/image/qrcode"
 	"gocv.io/x/gocv"
@@ -251,7 +253,17 @@ func NewChunks(filename string, size int) (*File2Image, error) {
 
 	go func() {
 		defer close(stream.Data)
+		seen := make(map[string]bool)
+
 		for obj := range dataChan {
+			chunkHash := sha256.Sum256(obj.data)
+			hashKey := fmt.Sprintf("%x", chunkHash)
+			if seen[hashKey] {
+				log.Printf("🔁 Chunk duplicado ignorado (idx %d)", obj.idx)
+				continue
+			}
+			seen[hashKey] = true
+
 			meta := &Metadata{
 				Crc:   obj.crc,
 				Index: fmt.Sprintf("%06X", obj.idx),
@@ -290,7 +302,6 @@ func (q *File2Image) GenerateFramesLive() error {
 	qr := qrcode.NewQrcode()
 
 	log.Println("Preparando transmisión...")
-	window.WaitKey(1000)
 
 	for obj := range q.Data {
 		meta := &Metadata{}
@@ -365,5 +376,43 @@ func (q *File2Image) GenerateFramesLive() error {
 	window.WaitKey(0)
 	mat.Close()
 
+	return nil
+}
+
+func ShowTxqrSequence(frames [][]byte) error {
+	window := gocv.NewWindow("QR Dinámico TXQR")
+	defer window.Close()
+
+	encoder := txqr.NewEncoder(512) // ajusta tamaño del chunk
+	for _, frame := range frames {
+		hexData := fmt.Sprintf("%x", frame)
+		qrChunks, err := encoder.Encode(hexData)
+		if err != nil {
+			return fmt.Errorf("txqr encode: %v", err)
+		}
+
+		for _, chunk := range qrChunks {
+			img, err := qr.Encode(chunk, 500, qr.Medium)
+			if err != nil {
+				return fmt.Errorf("txqr encode img: %v", err)
+			}
+
+			var buf bytes.Buffer
+			if err := png.Encode(&buf, img); err != nil {
+				return fmt.Errorf("png encode: %v", err)
+			}
+
+			mat, err := gocv.IMDecode(buf.Bytes(), gocv.IMReadGrayScale)
+			if err != nil {
+				return fmt.Errorf("decode to mat: %v", err)
+			}
+
+			window.IMShow(mat)
+			if window.WaitKey(120) == 113 {
+				return nil
+			}
+			mat.Close()
+		}
+	}
 	return nil
 }
