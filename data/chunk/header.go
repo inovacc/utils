@@ -1,4 +1,4 @@
-package file2image
+package chunk
 
 import (
 	"encoding/binary"
@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	HeaderSize     = 2 + 4 + 6 + 2 // kind (2) + crc (4) + index (6) + dataLen (2)
-	ChunkAlignment = 1024
+	headerSize = 2 + 4 + 6 + 8 + 2 // kind(2) + crc(4) + index(6) + id(8) + dataLen(2)
+	Alignment  = 1024
 )
 
 type kindOp rune
@@ -20,17 +20,32 @@ const (
 )
 
 type Header struct {
+	ID      int
 	Kind    kindOp
 	Crc     uint32
 	Index   string
 	DataLen uint16
 }
 
+func NewHeader(id int, kind kindOp, index int) *Header {
+	return &Header{
+		ID:      id,
+		Kind:    kind,
+		Crc:     0,
+		Index:   fmt.Sprintf("%06X", index),
+		DataLen: 0,
+	}
+}
+
+func (m *Header) HeaderSize() int {
+	return headerSize
+}
+
 func (m *Header) Encode(data []byte) []byte {
 	m.Crc = crc32.ChecksumIEEE(data)
 	m.DataLen = uint16(len(data))
 
-	arr := make([]byte, HeaderSize)
+	arr := make([]byte, m.HeaderSize())
 	offset := 0
 
 	binary.BigEndian.PutUint16(arr[offset:], uint16(m.Kind))
@@ -44,12 +59,15 @@ func (m *Header) Encode(data []byte) []byte {
 	copy(arr[offset:], idxBytes)
 	offset += 6
 
+	binary.BigEndian.PutUint64(arr[offset:], uint64(m.ID))
+	offset += 8
+
 	binary.BigEndian.PutUint16(arr[offset:], m.DataLen)
 	return arr
 }
 
 func (m *Header) Decode(data []byte) error {
-	if len(data) < HeaderSize {
+	if len(data) < m.HeaderSize() {
 		return fmt.Errorf("invalid metadata size")
 	}
 	offset := 0
@@ -62,6 +80,9 @@ func (m *Header) Decode(data []byte) error {
 
 	m.Index = string(data[offset : offset+6])
 	offset += 6
+
+	m.ID = int(binary.BigEndian.Uint64(data[offset:]))
+	offset += 8
 
 	m.DataLen = binary.BigEndian.Uint16(data[offset:])
 	return nil

@@ -2,6 +2,7 @@ package fileutil
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 )
 
@@ -45,4 +46,26 @@ func ReadFromFile(filename string) ([]byte, error) {
 		return nil, err // Failed to close file
 	}
 	return buf.Bytes(), nil
+}
+
+func CompareFiles(path1, path2 string) error {
+	file1, err := os.ReadFile(path1)
+	if err != nil {
+		return fmt.Errorf("failed to read %s: %w", path1, err)
+	}
+
+	file2, err := os.ReadFile(path2)
+	if err != nil {
+		return fmt.Errorf("failed to read %s: %w", path2, err)
+	}
+
+	if len(file1) != len(file2) {
+		return fmt.Errorf("files differ in size: %d vs %d bytes", len(file1), len(file2))
+	}
+
+	if !bytes.Equal(file1, file2) {
+		return fmt.Errorf("files are not identical (content mismatch)")
+	}
+
+	return nil
 }
