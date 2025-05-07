@@ -3,7 +3,6 @@ package file2image
 import (
 	"bytes"
 	"crypto/sha256"
-	"encoding/hex"
 	"fmt"
 	"hash/crc32"
 	"image/png"
@@ -168,6 +167,13 @@ func splitFile(filename string, size int) (chan chunk, error) {
 			}
 			idx++
 		}
+
+		dataChan <- chunk{
+			data: []byte(""),
+			crc:  0,
+			idx:  idx,
+			kind: KindOperationEnd,
+		}
 	}()
 
 	return dataChan, nil
@@ -283,17 +289,29 @@ func (q *File2Image) GenerateFramesLive() error {
 
 	qr := qrcode.NewQrcode()
 
+	log.Println("Preparando transmisión...")
+	window.WaitKey(1000)
+
 	for obj := range q.Data {
 		meta := &Metadata{}
 		if err := gob.DecodeGob(obj, meta); err != nil {
 			log.Printf("Error decoding metadata: %v", err)
-		} else {
-			log.Printf("Metadata: Kind=%v, Index=%s, CRC=%08X, Name=%s, Mime=%v",
-				meta.Kind, meta.Index, meta.Crc, meta.Name, meta.Mime)
+			continue
 		}
 
-		data := hex.EncodeToString(obj)
-		if err := qr.Generate(data); err != nil {
+		switch meta.Kind {
+		case KindOperationStart:
+			countStart++
+		case KindOperationFragment:
+			countFragment++
+		case KindOperationEnd:
+			countEnd++
+		}
+
+		log.Printf("Metadata: Kind=%v, Index=%s, CRC=%08X, Name=%s, Mime=%v",
+			meta.Kind, meta.Index, meta.Crc, meta.Name, meta.Mime)
+
+		if err := qr.GenerateRaw(obj); err != nil {
 			return fmt.Errorf("QR generate: %v", err)
 		}
 
@@ -319,10 +337,33 @@ func (q *File2Image) GenerateFramesLive() error {
 	}
 
 	log.Println("======= RESUMEN DE FRAMES =======")
-	log.Printf("START    : %d\n", countStart)
-	log.Printf("FRAGMENT : %d\n", countFragment)
-	log.Printf("END      : %d\n", countEnd)
+	log.Printf("START    : %d", countStart)
+	log.Printf("FRAGMENT : %d", countFragment)
+	log.Printf("END      : %d", countEnd)
 	log.Println("================================")
+
+	summary := fmt.Sprintf("RESUMEN DE FRAMES\nSTART:%d\nFRAGMENT:%d\nEND:%d",
+		countStart, countFragment, countEnd)
+
+	qrFinal := qrcode.NewQrcode()
+	if err := qrFinal.Generate(summary); err != nil {
+		return fmt.Errorf("QR resumen: %v", err)
+	}
+
+	buf := new(bytes.Buffer)
+	if err := png.Encode(buf, qrFinal.Image(700)); err != nil {
+		return fmt.Errorf("png resumen: %v", err)
+	}
+
+	mat, err := gocv.IMDecode(buf.Bytes(), gocv.IMReadGrayScale)
+	if err != nil {
+		return fmt.Errorf("decode resumen: %v", err)
+	}
+
+	log.Println("Mostrando resumen final...")
+	window.IMShow(mat)
+	window.WaitKey(0)
+	mat.Close()
 
 	return nil
 }

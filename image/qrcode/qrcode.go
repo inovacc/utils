@@ -24,6 +24,15 @@ func (q *Qrcode) Generate(content string) error {
 	return nil
 }
 
+func (q *Qrcode) GenerateRaw(data []byte) error {
+	var err error
+	q.qr, err = qrcode.NewWithForcedVersion(string(data), 40, qrcode.Medium)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (q *Qrcode) ToPNG(size int) ([]byte, error) {
 	return q.qr.PNG(size)
 }
