@@ -9,11 +9,11 @@ import (
 
 func main() {
 	newHasher := hashing.NewHasher(hashing.SHA256)
-	fmt.Println("SHA256 Hash:", newHasher.HashString("hello world"))
+	fmt.Println("SHA256 hash:", newHasher.HashString("hello world"))
 
 	passBcrypt, _ := password.HashPasswordBcrypt("secret")
-	fmt.Println("Bcrypt Password Hash:", passBcrypt)
+	fmt.Println("Bcrypt Password hash:", passBcrypt)
 
 	passArgon2, _ := password.HashPasswordArgon2("secret", nil)
-	fmt.Println("Argon2 Password Hash:", passArgon2)
+	fmt.Println("Argon2 Password hash:", passArgon2)
 }

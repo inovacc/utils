@@ -77,7 +77,7 @@ func CopyExportedFields(dst, src any) error {
 //
 // Example:
 //
-//	ZeroStruct(&config) // config.Name = "", config.Count = 0, config.Enabled = false, etc.
+//	ZeroStruct(&config) // config.name = "", config.Count = 0, config.Enabled = false, etc.
 func ZeroStruct(v any) {
 	val := reflect.ValueOf(v).Elem()
 
@@ -97,7 +97,7 @@ func ZeroStruct(v any) {
 // Example:
 //
 //	m := StructToMap(user)
-//	fmt.Println(m["Name"], m["Active"])
+//	fmt.Println(m["name"], m["Active"])
 func StructToMap(input any) map[string]any {
 	val := reflect.ValueOf(input)
 	if val.Kind() == reflect.Ptr {

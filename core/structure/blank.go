@@ -36,7 +36,7 @@ import (
 // Example:
 //
 //	type Person struct {
-//	    Name    string
+//	    name    string
 //	    Age     int
 //	    Address *struct {
 //	        Street string
@@ -45,7 +45,7 @@ import (
 //	}
 //
 //	p := Person{
-//	    Name: "John",
+//	    name: "John",
 //	    Age:  30,
 //	    Address: &struct {
 //	        Street string
@@ -57,7 +57,7 @@ import (
 //	}
 //
 //	err := BlankStructure(&p)
-//	// After: p.Name = "string", p.Age = 0, p.Address.Street = "string", p.Address.City = "string"
+//	// After: p.name = "string", p.Age = 0, p.Address.Street = "string", p.Address.City = "string"
 func BlankStructure(v any) error {
 	val := reflect.ValueOf(v)
 	if val.Kind() == reflect.Ptr {

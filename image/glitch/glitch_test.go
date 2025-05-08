@@ -21,7 +21,7 @@ func TestGlitchEncodeDecode(t *testing.T) {
 	// defer os.RemoveAll(testOutputDir)
 	// defer os.RemoveAll(testReconstructed)
 
-	// Encode a file to images
+	// encode a file to images
 	if err := g.EncodeFileToImages(testInput, testOutputDir); err != nil {
 		t.Fatalf("EncodeFileToImages failed: %v", err)
 	}

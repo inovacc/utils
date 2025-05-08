@@ -58,15 +58,15 @@ type Parser struct {
 //
 //	// Standard parser without descriptors
 //	specParser := NewParser(Minute | Hour | Dom | Month | Dow)
-//	sched, err := specParser.Parse("0 0 15 */3 *")
+//	sched, err := specParser.Deserialize("0 0 15 */3 *")
 //
 //	// Same as above, just excludes time fields
 //	subsParser := NewParser(Dom | Month | Dow)
-//	sched, err := specParser.Parse("15 */3 *")
+//	sched, err := specParser.Deserialize("15 */3 *")
 //
 //	// Same as above, just makes Dow optional
 //	subsParser := NewParser(Dom | Month | DowOptional)
-//	sched, err := specParser.Parse("15 */3")
+//	sched, err := specParser.Deserialize("15 */3")
 func NewParser(options ParseOption) Parser {
 	optionals := 0
 	if options&DowOptional > 0 {
